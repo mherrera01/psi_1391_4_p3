@@ -1,3 +1,5 @@
 from django.contrib import admin
+# from core.models import --
 
-# Register your models here.
+# Update the registration to include this customised interface
+# admin.site.register()
