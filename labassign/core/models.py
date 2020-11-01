@@ -26,43 +26,10 @@ class Teacher(models.Model):
         return f'{self.first_name} {self.last_name}'
 
 
-class Student(User):
-    # Foreign keys of Student
-    labGroup = models.ForeignKey(LabGroup)
-    theoryGroup = models.ForeignKey(TheoryGroup)
-
-    # Properties inherited by User
-    # first_name, last_name, email, password
-
-    # Properties of Student
-    gradeTheoryLastYear = models.FloatField()
-    gradeLabLastYear = models.FloatField()
-    convalidationGranted = models.BooleanField()
-
-    class Meta:
-        ordering = ['last_name', 'first_name']
-    
-    def __str__(self):
-        return f'{self.first_name} {self.last_name}'
-
-
-class Pair(models.Model):
-    # Foreign keys of Pair
-    student1 = models.ForeignKey(Student)
-    student2 = models.ForeignKey(Student)
-    studentBreakRequest = models.ForeignKey(Student)
-
-    # Properties of Pair
-    validated = models.BooleanField()
-    
-    def __str__(self):
-        return f'{self.student1} - {self.student2}'
-
-
 class LabGroup(models.Model):
     # Foreign keys of LabGroup
     MAX_LENGTH = 128
-    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+    teacher = models.ForeignKey(Teacher, null=True, on_delete=models.SET_NULL)
     
     # Properties of LabGroup
     groupName = models.CharField(max_length=MAX_LENGTH)
@@ -70,25 +37,13 @@ class LabGroup(models.Model):
     schedule = models.CharField(max_length=MAX_LENGTH)
     
     maxNumberStudents = models.IntegerField()
-    counter = models.IntegerField()
+    counter = models.IntegerField(default=0)
 
     class Meta:
         ordering = ['groupName']
     
     def __str__(self):
         return self.groupName
-
-
-class GroupConstraints(models.Model):
-    # Foreign keys of GroupConstraints
-    theoryGroup = models.ForeignKey(TheoryGroup)
-    labGroup = models.ForeignKey(LabGroup)
-
-    class Meta:
-        ordering = ['theoryGroup.groupName', 'lab.groupName']
-        
-    def __str__(self):
-        return f'{self.theoryGroup} - {self.labGroup}'
 
 
 class TheoryGroup(models.Model):
@@ -102,3 +57,89 @@ class TheoryGroup(models.Model):
 
     def __str__(self):
         return self.groupName
+
+
+class Student(User):
+    # Foreign keys of Student
+    labGroup = models.ForeignKey(LabGroup, null=True, on_delete=models.SET_NULL)
+    theoryGroup = models.ForeignKey(TheoryGroup, null=True, on_delete=models.SET_NULL)
+
+    # Properties inherited by User
+    # first_name, last_name, email, password
+
+    # Properties of Student
+    gradeTheoryLastYear = models.FloatField(default=(-1))
+    gradeLabLastYear = models.FloatField(default=(-1))
+    convalidationGranted = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['last_name', 'first_name']
+    
+    def __str__(self):
+        return f'{self.first_name} {self.last_name}'
+
+
+class Pair(models.Model):
+    # Foreign keys of Pair
+    student1 = models.OneToOneField(Student,
+                                    null=False,
+                                    related_name="student1",
+                                    on_delete=models.CASCADE)
+    student2 = models.ForeignKey(Student, null=False,
+                                 related_name="student2",
+                                 on_delete=models.CASCADE)
+
+    sbr = "studentBreakRequest" # aux for Flake8
+    studentBreakRequest = models.ForeignKey(Student, null=True,
+                                            related_name=sbr,
+                                            on_delete=models.SET_NULL)
+
+    # Properties of Pair
+    validated = models.BooleanField()
+
+    def save(self, *args, **kwargs):
+        # See if student2 already has a pair
+        # where his student2 matches self.student1
+        if self.validated is False:
+            try:
+                # Check if another pair exists beforehand
+                other_pair = Pair.objects.get(student1=self.student2)
+                
+                # It exists, check if said student wants
+                # to be with self.student1 too
+                
+                # If the statement is false, create
+                # this new pair by just continuing
+                # after the except
+
+                if other_pair.student2 == self.student1:
+                    # Validate the other pair (first created)
+
+                    other_pair.validated = True
+                    other_pair.save()
+                    return
+                
+            except Pair.DoesNotExist:
+                # There's no other pair. Just continue.
+                pass
+
+        if self.studentBreakRequest:
+            self.validated = False
+            
+        super(Pair, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return f'{self.student1} - {self.student2}'
+
+
+class GroupConstraints(models.Model):
+    # Foreign keys of GroupConstraints
+    theoryGroup = models.ForeignKey(TheoryGroup, null=True,
+                                    on_delete=models.SET_NULL)
+    labGroup = models.OneToOneField(LabGroup, on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ['theoryGroup', 'labGroup']
+        
+    def __str__(self):
+        return f'{self.theoryGroup} - {self.labGroup}'

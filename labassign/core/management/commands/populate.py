@@ -8,12 +8,15 @@
 # execute python manage.py  populate
 
 
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from core.models import (OtherConstraints, Pair, Student,
                          GroupConstraints, TheoryGroup,
                          LabGroup, Teacher)
+from django.utils import timezone
+from collections import OrderedDict
+from datetime import datetime, timedelta 
 
-import cvs
+import csv
 
 
 # The name of this class is not optional must be Command
@@ -78,11 +81,19 @@ class Command(BaseCommand):
     def cleanDataBase(self):
         # delete all models stored (clean table)
         # in database
-        # remove pass and ADD CODE HERE
-        pass
+        Teacher.objects.all().delete()
+        OtherConstraints.objects.all().delete()
+        Pair.objects.all().delete()
+        Student.objects.all().delete()
+        GroupConstraints.objects.all().delete()
+        TheoryGroup.objects.all().delete()
+        LabGroup.objects.all().delete()
+
 
     def teacher(self):
         # create dictionary with teacher data
+        teacherD = OrderedDict()
+        
         teacherD[1] = {'id': 1,  # 1261, L 18:00, 1271 X 18-20
                        'first_name': 'No',
                        'last_name': 'Asignado1',}
@@ -100,13 +111,17 @@ class Command(BaseCommand):
                        'last_name': 'Marabini Ruiz',}
 
         # save in data base
-        for teacher in teacherD.items():
-            teacher.save()
+        for id, teacher in teacherD.items():
+            t = Teacher.objects.update_or_create(id=id, defaults=teacher)[0]
+            t.save()
+
 
     def labgroup(self):
         maxNumberStudents = 23
 
         # create dictionary with lab group data
+        labgroupD = OrderedDict()
+        
         labgroupD[1261] = {'id': 1261,  # 1261, L 18:00, 1271 X 18-20
                            'groupName': '1261',
                            'teacher': 1,
@@ -157,11 +172,18 @@ class Command(BaseCommand):
                            'maxNumberStudents': maxNumberStudents}
 
         # save in data base
-        for lab in labgroupD.items():
-            lab.save()
+        for id, lab in labgroupD.items():
+            labTeacher = Teacher.objects.get(id=lab['teacher'])
+            lab['teacher'] = labTeacher
+            labGroup = LabGroup.objects.update_or_create(id=id,
+                                                         defaults=lab)[0]
+            labGroup.save()
+            
 
     def theorygroup(self):
         # create dictionary with theory group data
+        theorygroupD = OrderedDict()
+        
         theorygroupD[126] = {'id': 126,
                              'groupName': '126',
                              'language': 'español/Spanish', }
@@ -179,10 +201,15 @@ class Command(BaseCommand):
                              'language': 'inglés/English', }
 
         # save in data base
-        for theory in theorygroupD.items():
-            theory.save()
+        for id, theory in theorygroupD.items():
+            theoryGroup = TheoryGroup.objects.update_or_create(id=id, defaults=theory)[0]
+            theoryGroup.save()
+
 
     def groupconstraints(self):
+        # create dictionary with other constraints data
+        groupconstraintsD = OrderedDict()
+
         groupconstraintsD[1261] = {'theoryGroup': 126, 'labGroup': 1261}  # mañana
         groupconstraintsD[1262] = {'theoryGroup': 126, 'labGroup': 1262}  # mañana
         groupconstraintsD[1263] = {'theoryGroup': 126, 'labGroup': 1263}  # mañana
@@ -198,8 +225,15 @@ class Command(BaseCommand):
         # groupconstraintsD[1202] = {'theoryGroup' : 120, 'labGroup': 1202} # doble - tarde - 2nd group
 
         # save in data base
-        for gconstr in groupconstraintsD.items():
-            gconstr.save()
+        for id, gconstr in groupconstraintsD.items():
+            lgroup = LabGroup.objects.get(id=id)
+            tgroup = TheoryGroup.objects.get(id=gconstr['theoryGroup'])
+            groupConstraints = GroupConstraints.objects\
+                .update_or_create(id=id,
+                                  defaults={'theoryGroup': tgroup,
+                                            'labGroup': lgroup})[0]
+            groupConstraints.save()
+
 
     def pair(self):
         # first student id is 1000, second 1001, etc.
@@ -212,7 +246,6 @@ class Command(BaseCommand):
             1011 - 1111
             1012 - 1112
         """
-
         pairD = OrderedDict()
 
         # Mañana
@@ -223,8 +256,14 @@ class Command(BaseCommand):
         pairD[1012] = {'student2': 1112, 'validated': True}
         
         # save in data base
-        for pair in pairD.items():
-            pair.save()
+        for id, pair in pairD.items():
+            student1 = Student.objects.get(id=id)
+            student2 = Student.objects.get(id=pair['student2'])
+            pair['student2'] = student2
+            p = Pair.objects.update_or_create(student1=student1,
+                                              defaults=pair)[0]
+            p.save()
+
 
     def otherconstrains(self):
         """create a single object here with staarting dates
@@ -234,17 +273,56 @@ class Command(BaseCommand):
         minGradeTheoryConv = 3,
         minGradeLabConv = 7
         """
-        # remove pass and ADD CODE HERE
-        pass
+
+        # create dictionary with other constraints data
+        otherConstraintsD = OrderedDict()
+
+        otherConstraintsD = {'selectGroupStartDate': timezone.now() + timedelta(days=1),
+                             'minGradeTheoryConv': 3,
+                             'minGradeLabConv': 7}
+
+        OtherConstraints.objects.update_or_create(id=0, defaults=otherConstraintsD)[0].save()
+    
 
     def student(self, csvStudentFile):
         # read csv file
-        # structure NIE	DNI	Apellidos	Nombre	group-Teoría
-        # remove pass and ADD CODE HERE
-        pass
+        # NIE,DNI,Apellidos,Nombre,grupo-teoria
+        with open(csvStudentFile, newline='') as csvfile:
+            reader = csv.DictReader(csvfile)
+            currentstudent = 1000
+            for row in reader:
+                tgroup = TheoryGroup.objects.get(id=row['grupo-teoria'])
 
-    def studentgrade(self, cvsStudentFileGrades):
+                getstu = Student.objects.get_or_create
+                username = (row['Apellidos']+row['Nombre'])
+                username = username.replace(" ", "")
+                u = getstu(id = currentstudent,
+                           defaults = {'username': username,
+                                       'last_name': row['Apellidos'],
+                                       'first_name': row['Nombre'],
+                                       'theoryGroup': tgroup})[0]
+                u.set_password('alumnodb')
+                # u.save()
+                currentstudent += 1
+
+
+    def studentgrade(self, csvStudentFileGrades):
         # read csv file
-        # structure NIE	DNI	Apellidos	Nombre	group-Teoría	grade-practicas	gradeteoria
-        # remove pass and ADD CODE HERE
-        pass
+        # NIE,DNI,Apellidos,Nombre,grupo-teoria,nota-practicas,nota-teoria
+        with open(csvStudentFileGrades, newline='') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                tgroup = TheoryGroup.objects.get(id=row['grupo-teoria'])
+
+                upd = Student.objects.update_or_create
+                username = (row['Apellidos']+row['Nombre'])
+                username = username.replace(" ", "")
+                u = upd(username=username,
+                        defaults={
+                            'first_name': row['Nombre'],
+                            'last_name': row['Apellidos'],
+                            'gradeTheoryLastYear': row['nota-teoria'],
+                            'gradeLabLastYear': row['nota-practicas'],
+                            'theoryGroup': tgroup})[0]
+                u.set_password('alumnodb')
+                u.save()

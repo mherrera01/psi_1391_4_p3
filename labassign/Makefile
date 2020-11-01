@@ -25,7 +25,7 @@ shell:
 
 populate:
 	@echo populate database
-	python3 ./manage.py populate all 19-edat.csv 19-edat_2.csv
+	python3 ./manage.py populate all 19-edat_psi.csv 19-edat_2_psi.csv
 
 update_db:
 	$(CMD) makemigrations
