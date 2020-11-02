@@ -8,14 +8,14 @@ class OtherConstraints(models.Model):
     minGradeLabConv = models.FloatField()
 
     def __str__(self):
-        return 'Min Grades:\n\tTheory: %.1f | Lab: %.1f' % (minGradeLabConv, minGradeTheoryConv)
+        return 'Min Grades:\n\tTheory: %.1f | '\
+               'Lab: %.1f' % (minGradeLabConv, minGradeTheoryConv)
 
 
 class Teacher(models.Model):
     MAX_LENGTH = 128
-    
-    # Properties of Student
 
+    # Properties of Student
     first_name = models.CharField(max_length=MAX_LENGTH)
     last_name = models.CharField(max_length=MAX_LENGTH)
 
@@ -30,18 +30,18 @@ class LabGroup(models.Model):
     # Foreign keys of LabGroup
     MAX_LENGTH = 128
     teacher = models.ForeignKey(Teacher, null=True, on_delete=models.SET_NULL)
-    
+
     # Properties of LabGroup
     groupName = models.CharField(max_length=MAX_LENGTH)
     language = models.CharField(max_length=MAX_LENGTH)
     schedule = models.CharField(max_length=MAX_LENGTH)
-    
+
     maxNumberStudents = models.IntegerField()
     counter = models.IntegerField(default=0)
 
     class Meta:
         ordering = ['groupName']
-    
+
     def __str__(self):
         return self.groupName
 
@@ -61,8 +61,10 @@ class TheoryGroup(models.Model):
 
 class Student(User):
     # Foreign keys of Student
-    labGroup = models.ForeignKey(LabGroup, null=True, on_delete=models.SET_NULL)
-    theoryGroup = models.ForeignKey(TheoryGroup, null=True, on_delete=models.SET_NULL)
+    labGroup = models.ForeignKey(LabGroup, null=True,
+                                 on_delete=models.SET_NULL)
+    theoryGroup = models.ForeignKey(TheoryGroup, null=True,
+                                    on_delete=models.SET_NULL)
 
     # Properties inherited by User
     # first_name, last_name, email, password
@@ -74,7 +76,7 @@ class Student(User):
 
     class Meta:
         ordering = ['last_name', 'first_name']
-    
+
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
 
@@ -89,7 +91,7 @@ class Pair(models.Model):
                                  related_name="student2",
                                  on_delete=models.CASCADE)
 
-    sbr = "studentBreakRequest" # aux for Flake8
+    sbr = "studentBreakRequest"  # aux for Flake8
     studentBreakRequest = models.ForeignKey(Student, null=True,
                                             related_name=sbr,
                                             on_delete=models.SET_NULL)
@@ -104,10 +106,10 @@ class Pair(models.Model):
             try:
                 # Check if another pair exists beforehand
                 other_pair = Pair.objects.get(student1=self.student2)
-                
+
                 # It exists, check if said student wants
                 # to be with self.student1 too
-                
+
                 # If the statement is false, create
                 # this new pair by just continuing
                 # after the except
@@ -118,14 +120,14 @@ class Pair(models.Model):
                     other_pair.validated = True
                     other_pair.save()
                     return
-                
+
             except Pair.DoesNotExist:
                 # There's no other pair. Just continue.
                 pass
 
         if self.studentBreakRequest:
             self.validated = False
-            
+
         super(Pair, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -140,6 +142,6 @@ class GroupConstraints(models.Model):
 
     class Meta:
         ordering = ['theoryGroup', 'labGroup']
-        
+
     def __str__(self):
         return f'{self.theoryGroup} - {self.labGroup}'

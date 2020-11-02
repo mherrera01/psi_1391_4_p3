@@ -8,13 +8,13 @@
 # execute python manage.py  populate
 
 
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from core.models import (OtherConstraints, Pair, Student,
                          GroupConstraints, TheoryGroup,
                          LabGroup, Teacher)
 from django.utils import timezone
 from collections import OrderedDict
-from datetime import datetime, timedelta 
+from datetime import timedelta
 
 import csv
 
@@ -89,39 +89,37 @@ class Command(BaseCommand):
         TheoryGroup.objects.all().delete()
         LabGroup.objects.all().delete()
 
-
     def teacher(self):
         # create dictionary with teacher data
         teacherD = OrderedDict()
-        
+
         teacherD[1] = {'id': 1,  # 1261, L 18:00, 1271 X 18-20
                        'first_name': 'No',
-                       'last_name': 'Asignado1',}
+                       'last_name': 'Asignado1', }
         teacherD[2] = {'id': 2,  # 1262 X 18-20, 1263/1273 V 17-19
                        'first_name': 'No',
-                       'last_name': 'Asignado4',}
+                       'last_name': 'Asignado4', }
         teacherD[3] = {'id': 3,  # 1272 V 17-19, 1291 L 18-20
                        'first_name': 'Julia',
-                       'last_name': 'Diaz Garcia',}
+                       'last_name': 'Diaz Garcia', }
         teacherD[4] = {'id': 4,  # 1292/1251V 17:00
                        'first_name': 'Alvaro',
-                       'last_name': 'del Val Latorre',}
+                       'last_name': 'del Val Latorre', }
         teacherD[5] = {'id': 5,  # 1201 X 18:00
                        'first_name': 'Roberto',
-                       'last_name': 'Marabini Ruiz',}
+                       'last_name': 'Marabini Ruiz', }
 
         # save in data base
         for id, teacher in teacherD.items():
             t = Teacher.objects.update_or_create(id=id, defaults=teacher)[0]
             t.save()
 
-
     def labgroup(self):
         maxNumberStudents = 23
 
         # create dictionary with lab group data
         labgroupD = OrderedDict()
-        
+
         labgroupD[1261] = {'id': 1261,  # 1261, L 18:00, 1271 X 18-20
                            'groupName': '1261',
                            'teacher': 1,
@@ -178,12 +176,11 @@ class Command(BaseCommand):
             labGroup = LabGroup.objects.update_or_create(id=id,
                                                          defaults=lab)[0]
             labGroup.save()
-            
 
     def theorygroup(self):
         # create dictionary with theory group data
         theorygroupD = OrderedDict()
-        
+
         theorygroupD[126] = {'id': 126,
                              'groupName': '126',
                              'language': 'español/Spanish', }
@@ -202,27 +199,33 @@ class Command(BaseCommand):
 
         # save in data base
         for id, theory in theorygroupD.items():
-            theoryGroup = TheoryGroup.objects.update_or_create(id=id, defaults=theory)[0]
+            theoryGroup = TheoryGroup.objects\
+                .update_or_create(id=id, defaults=theory)[0]
             theoryGroup.save()
-
 
     def groupconstraints(self):
         # create dictionary with other constraints data
         groupconstraintsD = OrderedDict()
 
-        groupconstraintsD[1261] = {'theoryGroup': 126, 'labGroup': 1261}  # mañana
-        groupconstraintsD[1262] = {'theoryGroup': 126, 'labGroup': 1262}  # mañana
-        groupconstraintsD[1263] = {'theoryGroup': 126, 'labGroup': 1263}  # mañana
+        # mañana
+        groupconstraintsD[1261] = {'theoryGroup': 126, 'labGroup': 1261}
+        groupconstraintsD[1262] = {'theoryGroup': 126, 'labGroup': 1262}
+        groupconstraintsD[1263] = {'theoryGroup': 126, 'labGroup': 1263}
 
         # tarde, split ii and doble
-        groupconstraintsD[1271] = {'theoryGroup': 127, 'labGroup': 1271}  # tarde - no doble
-        groupconstraintsD[1272] = {'theoryGroup': 127, 'labGroup': 1272}  # tarde - no doble
-        groupconstraintsD[1201] = {'theoryGroup': 120, 'labGroup': 1201}  # doble - tarde - español - WEds
+        # tarde - no doble
+        groupconstraintsD[1271] = {'theoryGroup': 127, 'labGroup': 1271}
+        groupconstraintsD[1272] = {'theoryGroup': 127, 'labGroup': 1272}
+        # doble - tarde - español - WEds
+        groupconstraintsD[1201] = {'theoryGroup': 120, 'labGroup': 1201}
 
         # english
-        groupconstraintsD[1291] = {'theoryGroup': 129, 'labGroup': 1291}  # inglés - ii - tarde Friday
-        groupconstraintsD[1292] = {'theoryGroup': 125, 'labGroup': 1292}  # inglés - doble
-        # groupconstraintsD[1202] = {'theoryGroup' : 120, 'labGroup': 1202} # doble - tarde - 2nd group
+        # inglés - ii - tarde Friday
+        groupconstraintsD[1291] = {'theoryGroup': 129, 'labGroup': 1291}
+        # inglés - doble
+        groupconstraintsD[1292] = {'theoryGroup': 125, 'labGroup': 1292}
+        # doble - tarde - 2nd group
+        # groupconstraintsD[1202] = {'theoryGroup' : 120, 'labGroup': 1202}
 
         # save in data base
         for id, gconstr in groupconstraintsD.items():
@@ -233,7 +236,6 @@ class Command(BaseCommand):
                                   defaults={'theoryGroup': tgroup,
                                             'labGroup': lgroup})[0]
             groupConstraints.save()
-
 
     def pair(self):
         # first student id is 1000, second 1001, etc.
@@ -254,7 +256,7 @@ class Command(BaseCommand):
         pairD[1010] = {'student2': 1110, 'validated': True}
         pairD[1011] = {'student2': 1111, 'validated': True}
         pairD[1012] = {'student2': 1112, 'validated': True}
-        
+
         # save in data base
         for id, pair in pairD.items():
             student1 = Student.objects.get(id=id)
@@ -263,7 +265,6 @@ class Command(BaseCommand):
             p = Pair.objects.update_or_create(student1=student1,
                                               defaults=pair)[0]
             p.save()
-
 
     def otherconstrains(self):
         """create a single object here with staarting dates
@@ -277,12 +278,13 @@ class Command(BaseCommand):
         # create dictionary with other constraints data
         otherConstraintsD = OrderedDict()
 
-        otherConstraintsD = {'selectGroupStartDate': timezone.now() + timedelta(days=1),
+        otherConstraintsD = {'selectGroupStartDate': timezone.now() +
+                             timedelta(days=1),
                              'minGradeTheoryConv': 3,
                              'minGradeLabConv': 7}
 
-        OtherConstraints.objects.update_or_create(id=0, defaults=otherConstraintsD)[0].save()
-    
+        OtherConstraints.objects\
+            .update_or_create(id=0, defaults=otherConstraintsD)[0].save()
 
     def student(self, csvStudentFile):
         # read csv file
@@ -296,15 +298,14 @@ class Command(BaseCommand):
                 getstu = Student.objects.get_or_create
                 username = (row['Apellidos']+row['Nombre'])
                 username = username.replace(" ", "")
-                u = getstu(id = currentstudent,
-                           defaults = {'username': username,
-                                       'last_name': row['Apellidos'],
-                                       'first_name': row['Nombre'],
-                                       'theoryGroup': tgroup})[0]
+                u = getstu(id=currentstudent,
+                           defaults={'username': username,
+                                     'last_name': row['Apellidos'],
+                                     'first_name': row['Nombre'],
+                                     'theoryGroup': tgroup})[0]
                 u.set_password('alumnodb')
                 # u.save()
                 currentstudent += 1
-
 
     def studentgrade(self, csvStudentFileGrades):
         # read csv file
