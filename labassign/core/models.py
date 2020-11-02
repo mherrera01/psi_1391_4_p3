@@ -8,8 +8,8 @@ class OtherConstraints(models.Model):
     minGradeLabConv = models.FloatField()
 
     def __str__(self):
-        return 'Min Grades:\n\tTheory: %.1f | '\
-               'Lab: %.1f' % (minGradeLabConv, minGradeTheoryConv)
+        return 'Theory: %.1f | Lab: %.1f'\
+               % (self.minGradeLabConv, self.minGradeTheoryConv)
 
 
 class Teacher(models.Model):
@@ -70,8 +70,8 @@ class Student(User):
     # first_name, last_name, email, password
 
     # Properties of Student
-    gradeTheoryLastYear = models.FloatField(default=(-1))
-    gradeLabLastYear = models.FloatField(default=(-1))
+    gradeTheoryLastYear = models.FloatField(default=0)
+    gradeLabLastYear = models.FloatField(default=0)
     convalidationGranted = models.BooleanField(default=False)
 
     class Meta:
@@ -141,7 +141,7 @@ class GroupConstraints(models.Model):
     labGroup = models.OneToOneField(LabGroup, on_delete=models.CASCADE)
 
     class Meta:
-        ordering = ['theoryGroup', 'labGroup']
+        ordering = ['labGroup', 'theoryGroup']
 
     def __str__(self):
         return f'{self.theoryGroup} - {self.labGroup}'

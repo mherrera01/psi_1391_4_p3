@@ -15,6 +15,7 @@ from core.models import (OtherConstraints, Pair, Student,
 from django.utils import timezone
 from collections import OrderedDict
 from datetime import timedelta
+import argparse
 
 import csv
 
@@ -33,31 +34,47 @@ class Command(BaseCommand):
            """
 
     def add_arguments(self, parser):
-        parser.add_argument('model', type=str, help="""
-        model to  update:
-        all -> all models
-        teacher
-        labgroup
-        theorygroup
-        groupconstraints
-        otherconstrains
-        student (require csv file)
-        studentgrade (require different csv file,
-        update only existing students)
-        pair
-        """)
-        parser.add_argument('studentinfo', type=str, help="""CSV file with student information
-        header= NIE, DNI, Apellidos, Nombre, Teoría
-        if NIE or DNI == 0 skip this entry and print a warning""")
-        parser.add_argument('studentinfolastyear', type=str, help="""CSV file with student information
-        header= NIE,DNI,Apellidos,Nombre,Teoría, grade lab, grade the
-        if NIE or DNI == 0 skip this entry and print a warning""")
+        parser.add_argument('model', type=str, help='\nModel to update:' +
+                            '\t all -- all models\n' +
+                            '\tteacher\n' +
+                            '\tlabgroup\n' +
+                            '\ttheorygroup\n' +
+                            '\tgroupconstraints\n' +
+                            '\totherconstrains\n' +
+                            '\tstudent -- requires a csv file passed\n' +
+                            '\tstudentgrade -- requires different csv file,' +
+                            'updates the students\n' +
+                            '\tupdate --(only existing students)\n' +
+                            '\tpair')
+
+        parser.add_argument('studentinfo', type=str, help="CSV file " +
+                            "with student information header= NIE, DNI, " +
+                            "Apellidos, Nombre, Teoría\n")
+        """
+        if NIE or DNI == 0 skip this entry and print a warning
+        """
+        parser.add_argument('studentinfolastyear', type=str, help="CSV" +
+                            "file with student information " +
+                            "header= NIE,DNI,Apellidos,Nombre,Teoría, " +
+                            "grade lab, grade theory\n")
+        return parser
 
     # handle is another compulsory name, do not change it"
     def handle(self, *args, **kwargs):
+        parser = argparse.ArgumentParser(description='Populates the ' +
+                                         'database of our Django ' +
+                                         'application based on our code\n')
+        self.add_arguments(parser)
+
+        pargs = parser.parse_args({'model': kwargs['model'],
+                                   'studentinfo': kwargs['studentinfo'],
+                                   'studentinfolastyear':
+                                   kwargs['studentinfolastyear']})
+
         model = kwargs['model']
         cvsStudentFile = kwargs['studentinfo']
         cvsStudentFileGrades = kwargs['studentinfolastyear']
+
         # clean database
         if model == 'all':
             self.cleanDataBase()
@@ -293,6 +310,13 @@ class Command(BaseCommand):
             reader = csv.DictReader(csvfile)
             currentstudent = 1000
             for row in reader:
+
+                if 'DNI' not in row or 'NIE' not in row\
+                        or int(row['NIE']) == 0 or int(row['DNI']) == 0:
+                    print("WARNING: DNI or NIE missing from row %d!" %
+                          current_row)
+                    continue
+
                 tgroup = TheoryGroup.objects.get(id=row['grupo-teoria'])
 
                 getstu = Student.objects.get_or_create
@@ -313,6 +337,13 @@ class Command(BaseCommand):
         with open(csvStudentFileGrades, newline='') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
+
+                if 'DNI' not in row or 'NIE' not in row\
+                        or int(row['NIE']) == 0 or int(row['DNI']) == 0:
+                    print("WARNING: DNI or NIE missing from row %d!" %
+                          current_row)
+                    continue
+
                 tgroup = TheoryGroup.objects.get(id=row['grupo-teoria'])
 
                 upd = Student.objects.update_or_create
