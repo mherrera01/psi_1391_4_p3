@@ -66,10 +66,10 @@ class Command(BaseCommand):
                                          'application based on our code\n')
         self.add_arguments(parser)
 
-        pargs = parser.parse_args({'model': kwargs['model'],
-                                   'studentinfo': kwargs['studentinfo'],
-                                   'studentinfolastyear':
-                                   kwargs['studentinfolastyear']})
+        parser.parse_args({'model': kwargs['model'],
+                           'studentinfo': kwargs['studentinfo'],
+                           'studentinfolastyear':
+                           kwargs['studentinfolastyear']})
 
         model = kwargs['model']
         cvsStudentFile = kwargs['studentinfo']
@@ -310,17 +310,10 @@ class Command(BaseCommand):
             reader = csv.DictReader(csvfile)
             currentstudent = 1000
             for row in reader:
-
-                if 'DNI' not in row or 'NIE' not in row\
-                        or int(row['NIE']) == 0 or int(row['DNI']) == 0:
-                    print("WARNING: DNI or NIE missing from row %d!" %
-                          current_row)
-                    continue
-
                 tgroup = TheoryGroup.objects.get(id=row['grupo-teoria'])
 
                 getstu = Student.objects.get_or_create
-                username = (row['Apellidos']+row['Nombre'])
+                username = ("user_" + str(currentstudent))
                 username = username.replace(" ", "")
                 u = getstu(id=currentstudent,
                            defaults={'username': username,
@@ -328,7 +321,7 @@ class Command(BaseCommand):
                                      'first_name': row['Nombre'],
                                      'theoryGroup': tgroup})[0]
                 u.set_password('alumnodb')
-                # u.save()
+                u.save()
                 currentstudent += 1
 
     def studentgrade(self, csvStudentFileGrades):
@@ -336,18 +329,12 @@ class Command(BaseCommand):
         # NIE,DNI,Apellidos,Nombre,grupo-teoria,nota-practicas,nota-teoria
         with open(csvStudentFileGrades, newline='') as csvfile:
             reader = csv.DictReader(csvfile)
+            currentstudent = 1000
             for row in reader:
-
-                if 'DNI' not in row or 'NIE' not in row\
-                        or int(row['NIE']) == 0 or int(row['DNI']) == 0:
-                    print("WARNING: DNI or NIE missing from row %d!" %
-                          current_row)
-                    continue
-
                 tgroup = TheoryGroup.objects.get(id=row['grupo-teoria'])
 
                 upd = Student.objects.update_or_create
-                username = (row['Apellidos']+row['Nombre'])
+                username = ("user_" + str(currentstudent))
                 username = username.replace(" ", "")
                 u = upd(username=username,
                         defaults={
@@ -358,3 +345,4 @@ class Command(BaseCommand):
                             'theoryGroup': tgroup})[0]
                 u.set_password('alumnodb')
                 u.save()
+                currentstudent += 1

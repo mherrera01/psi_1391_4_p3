@@ -97,8 +97,9 @@ class Pair(models.Model):
                                             on_delete=models.SET_NULL)
 
     # Properties of Pair
-    validated = models.BooleanField()
+    validated = models.BooleanField(default=False)
 
+    '''
     def save(self, *args, **kwargs):
         # See if student2 already has a pair
         # where his student2 matches self.student1
@@ -116,7 +117,7 @@ class Pair(models.Model):
 
                 if other_pair.student2 == self.student1:
                     # Validate the other pair (first created)
-
+                    # and don't save this one
                     other_pair.validated = True
                     other_pair.save()
                     return
@@ -129,7 +130,7 @@ class Pair(models.Model):
             self.validated = False
 
         super(Pair, self).save(*args, **kwargs)
-
+    '''
     def __str__(self):
         return f'{self.student1} - {self.student2}'
 
