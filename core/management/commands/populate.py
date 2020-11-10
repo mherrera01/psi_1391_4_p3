@@ -313,14 +313,14 @@ class Command(BaseCommand):
                 tgroup = TheoryGroup.objects.get(id=row['grupo-teoria'])
 
                 getstu = Student.objects.get_or_create
-                username = ("user_" + str(currentstudent))
+                username = (row['NIE'])
                 username = username.replace(" ", "")
                 u = getstu(id=currentstudent,
                            defaults={'username': username,
                                      'last_name': row['Apellidos'],
                                      'first_name': row['Nombre'],
                                      'theoryGroup': tgroup})[0]
-                u.set_password('alumnodb')
+                u.set_password(row['DNI'])
                 u.save()
                 currentstudent += 1
 
@@ -334,7 +334,7 @@ class Command(BaseCommand):
                 tgroup = TheoryGroup.objects.get(id=row['grupo-teoria'])
 
                 upd = Student.objects.update_or_create
-                username = ("user_" + str(currentstudent))
+                username = (row['NIE'])
                 username = username.replace(" ", "")
                 u = upd(username=username,
                         defaults={
@@ -343,6 +343,6 @@ class Command(BaseCommand):
                             'gradeTheoryLastYear': row['nota-teoria'],
                             'gradeLabLastYear': row['nota-practicas'],
                             'theoryGroup': tgroup})[0]
-                u.set_password('alumnodb')
+                u.set_password(row['DNI'])
                 u.save()
                 currentstudent += 1
