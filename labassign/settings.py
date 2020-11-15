@@ -15,6 +15,14 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# Project templates directory
+TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
+
+# Directory that holds static content
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
+
+# Media directory
+MEDIA_DIR = os.path.join(BASE_DIR, 'media')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -25,7 +33,7 @@ SECRET_KEY = '5(zxh&&9--0f-x9+^f-(*lz#(nw73)1op9(ni4gb=5^bjg9+b%'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [u"127.0.0.1", u"hidden-peak-53167.herokuapp.com"]
+ALLOWED_HOSTS = [u"127.0.0.1", u"hidden-peak-53167.herokuapp.com", u"localhost"]
 
 
 # Application definition
@@ -55,7 +63,7 @@ ROOT_URLCONF = 'labassign.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [TEMPLATE_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -128,3 +136,4 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticHeroku')
+STATICFILES_DIRS = [STATIC_DIR, ]

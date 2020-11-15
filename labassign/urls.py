@@ -19,6 +19,15 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 
+from core import views
+
 urlpatterns = [
+    path('', views.home),
+    path('home/', views.home, name='home'),
+    path('login/', views.login, name='login'),
+#    path('logout/', views.logout),
+#    path('convalidation/', views.convalidation),
+#    path('applypair/', views.applypair),
+#    path('applygroup/', views.applygroup),
     path('admin/', admin.site.urls),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

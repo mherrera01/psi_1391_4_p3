@@ -1,0 +1,38 @@
+{% extends 'core/base.html' %}
+{% load staticfiles %}
+
+{% block title_block %}
+    Home
+{% endblock %}
+
+{% block content %}
+    <div class="w3-card-4 w3-content w3-white" style="padding:40px; maxwidth: 500px">
+        <div class="w3-container w3-card w3-light-gray" style="padding-bottom: 20px;">
+            <div class="w3-xxlarge">Summary</div>
+            <div style="padding-top: 10px;">Name: <b>JOse Maria AZnar</b></div>
+        </div>
+        <ul class="w3-ul">
+            <li>
+                <h2>Theory group</h2>
+                <p>Your theory group is 129 (BORRAME)</p>
+            </li>
+            <li>
+                <h2>Convalidation</h2>
+                <p>Your lab assignments have { if not convalidated }NOT {endif}been convalidated.</p>
+                <p>(If you wish to request a convalidation press the "convalidation" button.)</p>
+                <a type="submit" class="w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow" 
+                    href="google.com" 
+                    style="cursor: pointer; text-decoration: none;">Go to Convalidations</a>
+            </li>
+            <li>
+                <h2>Pair status</h2>
+                <p>You are NOT part of any pair</p>
+            </li>
+            <li>
+                <h2>Selected group</h2>
+                <p>Your practice group is: 1291 (BORRAME)</p>
+            </li>
+            
+        </ul>
+    </div>
+{% endblock %}
