@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 
 {% load staticfiles %}
+<html lang="en">
 
-<html>
-
-<head lang="en">
+<head lang>
     <meta charset="UTF-8" />
     <title>
         {% block title %}
@@ -16,30 +15,34 @@
     <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}" />
 </head>
 
-<!-- Top navigation bar -->
-<div class="w3-top">
-    <div class="w3-bar w3-card w3-left-align w3-large w3-blue-gray">
-        <a href="{% url 'home' %}" class="psi-hover w3-bar-item w3-button w3-padding-medium w3-hover-white">Home</a>
-        {% if user.is_authenticated %}
-        <!-- These links are only shown when you're logged in -->
-        <a href="{% url 'logout' %}"
-            class="psi-hover w3-bar-item w3-button w3-padding-medium w3-hover-white">Log-Out</a>
-        <a href="{% url 'convalidation' %}"
-            class="psi-hover w3-bar-item w3-button w3-padding-medium w3-hover-white">Convalidation</a>
-        <a href="{% url 'applypair' %}" class="psi-hover w3-bar-item w3-button w3-padding-medium w3-hover-white">Apply
-            Pair</a>
-        <a href="{% url 'breakpair' %}" class="psi-hover w3-bar-item w3-button w3-padding-medium w3-hover-white">Apply
-            Pair</a>
-        <a href="{% url 'applygroup' %}" class="psi-hover w3-bar-item w3-button w3-padding-medium w3-hover-white">Apply
-            Group</a>
-        {% else %}
-        <!-- These links are only shown when you're NOT logged in -->
-        <a href="{% url 'login' %}" class="psi-hover w3-bar-item w3-button w3-padding-medium w3-hover-white">Log-In</a>
-        {% endif %}
-    </div>
-</div>
-
 <body>
+    <!-- Top navigation bar -->
+    <div class="w3-top">
+        <div class="w3-bar w3-card w3-left-align w3-large w3-blue-gray">
+            <a href="{% url 'home' %}" class="psi-hover w3-bar-item w3-button w3-padding-medium w3-hover-white">Home</a>
+            {% if user.is_authenticated %}
+            <!-- These links are only shown when you're logged in -->
+            <a href="{% url 'logout' %}"
+                class="psi-hover w3-bar-item w3-button w3-padding-medium w3-hover-white">Log-Out</a>
+            <a href="{% url 'convalidation' %}"
+                class="psi-hover w3-bar-item w3-button w3-padding-medium w3-hover-white">Convalidation</a>
+            <a href="{% url 'applypair' %}"
+                class="psi-hover w3-bar-item w3-button w3-padding-medium w3-hover-white">Apply
+                Pair</a>
+            <a href="{% url 'breakpair' %}"
+                class="psi-hover w3-bar-item w3-button w3-padding-medium w3-hover-white">Apply
+                Pair</a>
+            <a href="{% url 'applygroup' %}"
+                class="psi-hover w3-bar-item w3-button w3-padding-medium w3-hover-white">Apply
+                Group</a>
+            {% else %}
+            <!-- These links are only shown when you're NOT logged in -->
+            <a href="{% url 'login' %}"
+                class="psi-hover w3-bar-item w3-button w3-padding-medium w3-hover-white">Log-In</a>
+            {% endif %}
+        </div>
+    </div>
+    <!-- Content -->
     {% if error %}
     <div id="error_popup" class="w3-modal" style="display: block;">
         <div class="w3-modal-content w3-card-4 w3-animate-zoom" style="max-width:600px;">
@@ -65,20 +68,20 @@
         {% block content %}
         {% endblock %}
     </div>
-</body>
 
-<!-- Footer -->
-<footer class="w3-container w3-padding-32 w3-center w3-blue-gray ">
-    <div class="w3-padding-16">
-        If you have any question or trouble, please contact <a
-            href="mailto:jorge.gonzalezgomez01@estudiante.uam.es">jorge.gonzalezgomez01@estudiante.uam.es</a> or <a
-            href="mailto:miguel.herreramartinez@estudiante.uam.es">miguel.herreramartinez@estudiante.uam.es</a>
-        <br />
-        Please, try using your institutional email (i.e. name.lastname@estudiante.uam.es)
-    </div>
-    <!-- We thought it was fair to keep this notice, it's intentional, we didn't just copy-paste. -->
-    <div class="w3-opacity"><i>Powered by <a href="https://www.w3schools.com/w3css/default.asp"
-                target="_blank">w3.css</a></i></div>
-</footer>
+    <!-- Footer -->
+    <footer class="w3-container w3-padding-32 w3-center w3-blue-gray">
+        <div class="w3-padding-16">
+            If you have any question or trouble, please contact <a
+                href="mailto:jorge.gonzalezgomez01@estudiante.uam.es">jorge.gonzalezgomez01@estudiante.uam.es</a> or <a
+                href="mailto:miguel.herreramartinez@estudiante.uam.es">miguel.herreramartinez@estudiante.uam.es</a>
+            <br />
+            Please, try using your institutional email (i.e. name.lastname@estudiante.uam.es)
+        </div>
+        <!-- We thought it was fair to keep this notice, it's intentional, we didn't just copy-paste. -->
+        <div class="w3-opacity"><i>Powered by <a href="https://www.w3schools.com/w3css/default.asp"
+                    target="_blank">w3.css</a></i></div>
+    </footer>
+</body>
 
 </html>
