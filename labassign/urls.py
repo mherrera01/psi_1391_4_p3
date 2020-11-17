@@ -24,10 +24,11 @@ from core import views
 urlpatterns = [
     path('', views.home),
     path('home/', views.home, name='home'),
-    path('login/', views.login, name='login'),
-#    path('logout/', views.logout),
-#    path('convalidation/', views.convalidation),
-#    path('applypair/', views.applypair),
-#    path('applygroup/', views.applygroup),
-    path('admin/', admin.site.urls),
+    path('login/', views.student_login, name='login'),
+    path('logout/', views.student_logout, name='logout'),
+    path('convalidation/', views.convalidation,
+         name='convalidation'),
+    path('applypair/', views.applypair, name='applypair'),
+    path('applygroup/', views.applygroup, name='applygroup'),
+    path('admin/', admin.site.urls, name='admin'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

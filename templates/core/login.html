@@ -1,0 +1,19 @@
+
+{% extends 'core/base.html' %}
+{% load staticfiles %}
+  
+{% block title_block %}
+    Login
+{% endblock %}
+  
+{% block content %}  
+  <form class="w3-container" action="{% url 'login' %}">
+    <div class="w3-section">
+      <label><b>Username (DNI)</b></label>
+      <input class="w3-input w3-border w3-margin-bottom" type="text" placeholder="Your NIE" name="username" required>
+      <label><b>Password (NIE) </b></label>
+      <input class="w3-input w3-border" type="password" placeholder="Your DNI" name="password" required>
+      <button class="w3-button w3-block w3-green w3-section w3-padding" type="submit">Login</button>
+    </div>
+  </form>
+{% endblock %}

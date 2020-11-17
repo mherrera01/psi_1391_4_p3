@@ -33,7 +33,8 @@ SECRET_KEY = '5(zxh&&9--0f-x9+^f-(*lz#(nw73)1op9(ni4gb=5^bjg9+b%'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [u"127.0.0.1", u"hidden-peak-53167.herokuapp.com", u"localhost"]
+ALLOWED_HOSTS = [u"127.0.0.1", u"hidden-peak-53167.herokuapp.com",
+                 u"localhost"]
 
 
 # Application definition
