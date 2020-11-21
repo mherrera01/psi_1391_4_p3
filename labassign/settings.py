@@ -138,3 +138,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticHeroku')
 STATICFILES_DIRS = [STATIC_DIR, ]
+
+# Login URL to redirect the users if they're not logged in
+LOGIN_URL = 'login'

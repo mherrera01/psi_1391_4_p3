@@ -1,0 +1,37 @@
+{% extends 'core/base.html' %}
+{% load staticfiles %}
+
+{% block title %}
+Convalidation
+{% endblock %}
+
+{% block content %}
+<div class="w3-card-4 w3-content w3-white" style="padding:40px; max-width: 900px">
+    <div class="w3-container w3-card w3-light-gray" style="padding-bottom: 20px;">
+        <div class="w3-xxlarge">Convalidation</div>
+    </div>
+    <div class="w3-container" style="display: flex; justify-content: space-between; padding-bottom:30px;">
+        <div class="w3-card w3-ul" style="padding:20px; max-width: 90vw">
+            <li>
+                <h3>Theory</h3>
+                <p><b>Required:</b> {{theory_min_grade}}/10</p>
+            </li>
+            <li>
+                <h3>Your grades</h3>
+                <p>{{theory_student_grade}}/10</p>
+            </li>
+        </div>
+        <div class="w3-card w3-ul" style="padding:20px; max-width: 90vw">
+            <li>
+                <h3>Labs</h3>
+                <p><b>Required:</b> {{lab_min_grade}}/10</p>
+            </li>
+            <li>
+                <h3>Your grades</h3>
+                <p>{{lab_student_grade}}/10</p>
+            </li>
+        </div>
+    </div>
+    <div>Your practices have {% if not convalidated %}NOT {% endif %}been convalidated</div>
+</div>
+{% endblock %}

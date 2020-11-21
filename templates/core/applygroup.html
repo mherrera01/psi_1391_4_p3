@@ -1,0 +1,26 @@
+{% extends 'core/base.html' %}
+{% load staticfiles %}
+
+{% block title %}
+    Apply Group
+{% endblock %}
+
+{% block content %}
+    <div class="w3-content w3-white" style="padding:40px; max-width: 850px">
+        <div class="w3-container w3-card w3-light-gray" style="padding-bottom: 20px;">
+            <div class="w3-xxlarge">Group selection page</div>
+        </div>
+        <form method="post" action="{% url 'applypair' %}">
+            <div class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow" style="width:200px;">
+                <h1>Select group:</h1>
+                <select>
+                    <option value="">----------</option>
+                    {% for group in groups %}
+                    <option value="{{group.groupName}}">{{group}}</option>
+                    {% endfor %}
+                </select>
+                <input type="submit" value="" name="labGroup">
+            </div>
+        </form>
+    </div>
+{% endblock %}

@@ -2,37 +2,94 @@
 {% load staticfiles %}
 
 {% block title %}
-Home
+    Home
 {% endblock %}
 
 {% block content %}
-        <div class="w3-card-4 w3-content w3-white" style="padding:40px; max-width: 90vw">
-            <div class="w3-container w3-card w3-light-gray" style="padding-bottom: 20px;">
-                <div class="w3-xxlarge">Summary</div>
-                <div style="padding-top: 10px;">Name: <b>JOse Maria AZnar</b></div>
-            </div>
-            <ul class="w3-ul">
-                <li>
-                    <h2>Theory group</h2>
-                    <p>Your theory group is 129 (BORRAME)</p>
-                </li>
-                <li>
-                    <h2>Convalidation</h2>
-                    <p>Your lab assignments have { if not convalidated }NOT {endif}been convalidated.</p>
-                    <p>(If you wish to request a convalidation press the "convalidation" button.)</p>
-                    <!-- {% url 'convalidation' %} -->
-                    <a class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow"
-                       href="google.com" style="cursor: pointer; text-decoration: none;">Go to Convalidations</a>
-                </li>
-                <li>
-                    <h2>Pair status</h2>
-                    <p>You are NOT part of any pair</p>
-                </li>
-                <li>
-                    <h2>Selected group</h2>
-                    <p>Your practice group is: 1291 (BORRAME)</p>
-                </li>
-
-            </ul>
+    <div class="w3-card-4 w3-content w3-white" style="padding:40px; max-width: 900px">
+        {% if user.is_authenticated %}
+        <div class="w3-container w3-card w3-light-gray" style="padding-bottom: 20px;">
+            <div class="w3-xxlarge">Summary</div>
+            <div style="padding-top: 10px;">Name: <b>{{student.first_name}} {{student.last_name}}</b></div>
         </div>
+        <ul class="w3-ul">
+            <li>
+                <h2>Theory group</h2>
+                <p>Your theory group is <b>{{student.theoryGroup}}</b></p>
+            </li>
+            <li>
+                <h2>Convalidation</h2>
+                <p>Your lab assignments have {% if not student.convalidationGranted %}NOT {% endif %}been convalidated.</p>
+                {% if not student.convalidationGranted %}
+                <p>(If you wish to request a convalidation press the "convalidation" button.)</p>
+                <a class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow"
+                    href="{% url 'convalidation' %}" style="cursor: pointer; text-decoration: none;">Convalidation request page</a>
+                {% endif %}
+            </li>
+            <li>
+                <h2>Pair status</h2>
+                {% if pair %}
+                <p>You're part of the following pair:</p> 
+                <p>{{pair}}</p>
+                    {% if pair.convalidated is False %}
+                    <p><b>{{pair.student2}}</b> has NOT accepted this pair</p>
+                    {% endif %}
+                {% else %}
+                <p>You are NOT part of any pair</p>
+                <a class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow"
+                    href="{% url 'applypair' %}" style="cursor: pointer; text-decoration: none;">Pair application page</a>
+                {% endif %}
+            </li>
+            <li>
+                <h2>Selected group</h2>
+                {% if student.labGroup %}
+                <p>Your practice group is: {{student.labGroup}}</p>
+                {% else %}
+                <p>You are NOT part of any practice group</p>
+                <a class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow"
+                    href="{% url 'applygroup' %}" style="cursor: pointer; text-decoration: none;">Group application page</a>
+                {% endif %}
+            </li>
+
+        </ul>
+        {% else %}
+        <div class="w3-content w3-white" style="padding:40px; max-width: 850px">
+        
+            <div class="w3-container w3-card w3-light-gray" style="padding-bottom: 20px;">
+                <div class="w3-xxlarge">Welcome to the EDAT group selection page!</div>
+                </div>
+                <ul class="w3-ul">
+                    <li>
+                        <h2>Login</h2>
+                        <p>To view the contents of this web, you first need to login.</p>
+                        <p>Use your NIE as username and your DNI number as password. These will be your credentials, do not use your email: that won't work.</p>
+                        <a class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow"
+                        href="{% url 'login' %}" style="cursor: pointer; text-decoration: none;">Login</a>
+                    </li>
+                    <li>
+                        <h2>Convalidation</h2>
+                        <p>To be eligible for a convalidation and, thus, not having to do the practices again, your grades from last year must be:</p>
+                        <div class="w3-container" style="display: flex; justify-content: space-between; padding-bottom:30px;">
+                            <div class="w3-card" style="padding:20px; max-width: 90vw">
+                                <h3>Theory</h3>
+                                <p>More than 3 out of 10</p>
+                            </div>
+                            <div class="w3-card" style="padding:20px; max-width: 90vw">
+                                <h3>Labs</h3>
+                                <p>More than 7 out of 10</p>
+                            </div>
+                        </div>
+                    <li>
+                        <h2>Pair selection</h2>
+                        <p>In this website, you may select another student to be your partner. If he chooses to be your partner too, your pair will be validated and, thus, they will be your partner.</p>
+                    </li>
+                    <li>
+                        <h2>Group selection</h2>
+                        <p>You may also select your preferred practice group if you haven't been assigned one or you just want to switch groups for any reason.</p>
+                    </li>
+                </ul>
+        </div>
+    
+        {% endif %}
+    </div>
 {% endblock %}
