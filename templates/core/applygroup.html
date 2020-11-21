@@ -10,17 +10,21 @@
         <div class="w3-container w3-card w3-light-gray" style="padding-bottom: 20px;">
             <div class="w3-xxlarge">Group selection page</div>
         </div>
-        <form method="post" action="{% url 'applypair' %}">
-            <div class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow" style="width:200px;">
-                <h1>Select group:</h1>
-                <select>
-                    <option value="">----------</option>
-                    {% for group in groups %}
-                    <option value="{{group.groupName}}">{{group}}</option>
-                    {% endfor %}
-                </select>
-                <input type="submit" value="" name="labGroup">
-            </div>
+        {% if group %}
+        <p>You are already assigned to: {{group}}</p>
+        {% else %}
+        <form class="w3-content" method="post" action="{% url 'applygroup' %}">
+            {% csrf_token %}
+            <h1>Select group:</h1>
+            <select name="labGroup">
+                <option value="">----------</option>
+                {% for group in groups %}
+                <option value="{{group.groupName}}">{{group}}</option>
+                {% endfor %}
+            </select>
+            <input class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow" style="width:200px;"
+                   type="submit" value="Request group" name="submitbutton">
         </form>
+        {% endif %}
     </div>
 {% endblock %}

@@ -14,7 +14,7 @@ def home(request):
         context_dict['student'] = stu
         pair = Pair.get_pair(stu)
         context_dict['pair'] = pair
-    return render(request, 'core/homue.html', context_dict)
+    return render(request, 'core/home.html', context_dict)
 
 
 def student_login(request):
@@ -99,6 +99,7 @@ def applygroup(request):
                 if stu.theoryGroup != gc.theoryGroup:
                     context_dict['msg'] = "Members of the theory group" +\
                         f"{stu.theoryGroup} can't join {lg}"
+                    context_dict['groups'] = LabGroup.objects.all()
                     context_dict['isError'] = True
                     return render(request, 'core/applygroup.html',
                                   context_dict)
