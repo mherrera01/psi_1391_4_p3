@@ -16,7 +16,7 @@ NIE,DNI,Apellidos,Nombre,grupo-teoria
 462402,863184,"Blanco Rey",Hector,129
 433498,266224,"Bourote Sainz",Alvaro,126
 473827,350096,"Cabellos Jimenez",Xu,126
-400121,15160,"Calzada Garcia",Alexandru-Gabriel,120
+400121,15160,"Calzada Garcia",AlexandruGabriel,120
 352895,472563,"Canales Anton",Diego,126
 480272,529297,"Cano Castillejo","Kevin de la",120
 386632,226315,"Cano Rueda",Raul,126
@@ -52,8 +52,8 @@ NIE,DNI,Apellidos,Nombre,grupo-teoria
 490948,82875,"Garcia Mus","Alejandro Manuel",129
 479440,791521,"Garcia Ortiz",Alberto,120
 437663,864797,"Garcia Toledano",Filippo,129
-425499,929273,"Garcia-Almuzara Gomez",Zhouyu,126
-433618,891033,"Garcia-Vaquero Vazquez","Fabian Alejandro",129
+425499,929273,"Garcia Almuzara Gomez",Zhouyu,126
+433618,891033,"Garcia Vaquero Vazquez","Fabian Alejandro",129
 425380,77658,"Gayan Bascones",Enrique,126
 428783,909876,"Gil Ochoa",Alejandro,126
 400069,513502,"Gonzalez Arteaga","Marcos las",126
@@ -63,7 +63,7 @@ NIE,DNI,Apellidos,Nombre,grupo-teoria
 418284,662050,"Granado Lopez",Miguel,126
 435266,918390,Guanti,Jorge,126
 393878,511084,Guo,Fernando,126
-437124,340664,"Gutierrez Peña","Alejandro Raul",120
+437124,340664,"Gutierrez Pena","Alejandro Raul",120
 448324,509795,"Gutierrez Perez",Jorge,126
 435322,266136,"Guzman Huerta",Laura,126
 423358,156514,"Heras Bru",Miguel,126
@@ -71,7 +71,7 @@ NIE,DNI,Apellidos,Nombre,grupo-teoria
 458486,826079,"Hernaez Delgado",Camilo,126
 406050,159387,"Hernandez Martin",Javier,126
 435251,450942,"Herrera Martinez","Jia Xue",129
-392336,168089,"Huete Fernandez-Bravo",Rodrigo,126
+392336,168089,"Huete FernandezBravo",Rodrigo,126
 433111,64587,"Huidobro Albendea",Andres,127
 461082,478125,"Hurtado Fuertes",Giancarlo,126
 462414,568802,"Ingelmo Barrada",Victor,129
@@ -114,13 +114,13 @@ NIE,DNI,Apellidos,Nombre,grupo-teoria
 450625,279280,"Molano Caraballo",Guillermo,127
 417344,932357,"Molino Rodríguez",Joaquín,127
 485095,31411,"Morales Leon","Luis Miguel",127
-445657,202615,"Moreno Briñon",Andrea,127
+445657,202615,"Moreno Brinon",Andrea,127
 428086,725366,"Moreno Maganto","Jose David",127
 442955,550302,"Morera Fuentes",Pelayo,127
-448252,946341,"Moya Quintana",Andrei-Alexandru,127
-489090,528237,"Muñoz Lopez-Barajas",Adrian,127
-446429,583414,"Muñoz Morales",Ivan,127
-498898,147398,"Muñoz Rodriguez",Fernando,129
+448252,946341,"Moya Quintana",AndreiAlexandru,127
+489090,528237,"Munoz LopezBarajas",Adrian,127
+446429,583414,"Munoz Morales",Ivan,127
+498898,147398,"Munoz Rodriguez",Fernando,129
 433670,287763,"Murcia Ballesta",Victor,120
 387916,503984,"Nucifora Izquierdo",Ignacio,127
 481371,582026,"Olcina Jimenez","Laura Victoria",129
@@ -175,7 +175,7 @@ NIE,DNI,Apellidos,Nombre,grupo-teoria
 454201,71386,"Simon del Collado","David del",127
 460908,403126,"Soetard Garcia",Marcos,129
 450239,57798,"Solla Martin",Marta,127
-428534,144084,"Sopeña Niecko",Alejandro,129
+428534,144084,"Sopena Niecko",Alejandro,129
 477921,463267,"Tapia Sanchez",Angel,127
 362930,15053,"Tomey Prieto",Sergio,127
 457231,209094,"Toral Gonzalez",Carla,129
@@ -183,7 +183,7 @@ NIE,DNI,Apellidos,Nombre,grupo-teoria
 492779,165402,"Torres Simon","Paloma Mei",127
 408618,860576,"Urbina Rodriguez",Victor,125
 455382,21912,"Valle Abascal",Belen,127
-495167,465019,"Vaquerizo Nuñez",Carlos,120
+495167,465019,"Vaquerizo Nunez",Carlos,120
 420023,47273,"Vazquez Huerta","Diego Arnold",120
 425043,797879,"Vega Jimenez","Bernardo Andrés",127
 460839,416286,"Velarde Martinez",Pablo,127

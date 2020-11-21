@@ -118,29 +118,26 @@ class Pair(models.Model):
         if self.validated is False:
             # Check if this user already requested another
             # pair. If he did, don't save this one.
-            try:
-                # If it returned anything not equal to self,
-                # he already requested another pair
-                pair = Pair.get_pair(self.student1)
-                if self != pair:
-                    return Pair.YOU_HAVE_PAIR
-            except Pair.DoesNotExist:
-                # If it doesn't exist, you're good to go
-                pass
+
+            # If it returned anything not equal to self,
+            # he already requested another pair
+            pair = Pair.get_pair(self.student1)
+            if pair is not None and self != pair:
+                return Pair.YOU_HAVE_PAIR
 
             # See if student2 already has a pair
             # where his student2 matches self.student1
-            try:
-                # Check if another pair exists beforehand
-                other_pair = Pair.get_pair(student1=self.student2)
 
-                # It exists, check if said student wants
-                # to be with self.student1 too
+            # Check if another pair exists beforehand
+            other_pair = Pair.get_pair(self.student2)
 
-                # If the statement is false, create
+            # It exists, check if said student wants
+            # to be with self.student1 too
+            if other_pair is not None:
+
+                # If the following statement is false, create
                 # this new pair by just continuing
                 # after the except
-
                 if other_pair.student2 == self.student1:
                     # Validate the other pair (first created)
                     # and don't save this one
@@ -149,9 +146,6 @@ class Pair(models.Model):
                     return Pair.OK
                 else:
                     return Pair.SECOND_HAS_PAIR
-            except Pair.DoesNotExist:
-                # There's no other pair. Just continue.
-                pass
 
         """
             To be completed in practice 4
@@ -161,6 +155,9 @@ class Pair(models.Model):
         # Save this current pair
         super(Pair, self).save(*args, **kwargs)
         return Pair.OK
+
+    class Meta:
+        ordering = ['student1__id', 'student2__id']
 
     def __str__(self):
         return f'{self.student1} - {self.student2}'

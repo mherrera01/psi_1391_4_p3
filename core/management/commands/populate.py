@@ -128,8 +128,7 @@ class Command(BaseCommand):
 
         # save in data base
         for id, teacher in teacherD.items():
-            t = Teacher.objects.update_or_create(id=id, defaults=teacher)[0]
-            t.save()
+            Teacher.objects.update_or_create(id=id, defaults=teacher)[0]
 
     def labgroup(self):
         maxNumberStudents = 23
@@ -190,9 +189,8 @@ class Command(BaseCommand):
         for id, lab in labgroupD.items():
             labTeacher = Teacher.objects.get(id=lab['teacher'])
             lab['teacher'] = labTeacher
-            labGroup = LabGroup.objects.update_or_create(id=id,
-                                                         defaults=lab)[0]
-            labGroup.save()
+            LabGroup.objects.update_or_create(id=id,
+                                              defaults=lab)[0]
 
     def theorygroup(self):
         # create dictionary with theory group data
@@ -216,9 +214,8 @@ class Command(BaseCommand):
 
         # save in data base
         for id, theory in theorygroupD.items():
-            theoryGroup = TheoryGroup.objects\
+            TheoryGroup.objects\
                 .update_or_create(id=id, defaults=theory)[0]
-            theoryGroup.save()
 
     def groupconstraints(self):
         # create dictionary with other constraints data
@@ -248,11 +245,10 @@ class Command(BaseCommand):
         for id, gconstr in groupconstraintsD.items():
             lgroup = LabGroup.objects.get(id=id)
             tgroup = TheoryGroup.objects.get(id=gconstr['theoryGroup'])
-            groupConstraints = GroupConstraints.objects\
+            GroupConstraints.objects\
                 .update_or_create(id=id,
                                   defaults={'theoryGroup': tgroup,
                                             'labGroup': lgroup})[0]
-            groupConstraints.save()
 
     def pair(self):
         # first student id is 1000, second 1001, etc.
@@ -279,9 +275,8 @@ class Command(BaseCommand):
             student1 = Student.objects.get(id=id)
             student2 = Student.objects.get(id=pair['student2'])
             pair['student2'] = student2
-            p = Pair.objects.update_or_create(student1=student1,
-                                              defaults=pair)[0]
-            p.save()
+            Pair.objects.update_or_create(student1=student1,
+                                          defaults=pair)[0]
 
     def otherconstrains(self):
         """create a single object here with staarting dates
