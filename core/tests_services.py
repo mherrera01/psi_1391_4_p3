@@ -59,7 +59,7 @@ BREAK_FORM_LABEL = 'myPair'
 
 GROUP_SERVICE = "applygroup"
 GROUP_TITLE = 'Apply Group'
-GROUP_FORM_LABEL = 'myLabGroup'
+GROUP_FORM_LABEL = 'labGroup'
 GROUP_ERROR_NOT_VALID = 'Members of the theory group'
 
 SERVICE_DEF = {LOGIN_SERVICE: {
@@ -69,16 +69,16 @@ SERVICE_DEF = {LOGIN_SERVICE: {
     LANDING_PAGE: {
         "title": LANDING_TITLE,
         # search pattern "Hi <b> plus any string composed by [a-zA-Z0-9_]
-        "pattern": r"Summary page for <b>(?P<username>\w+)"
+        "pattern": r"Name: <b>(?P<username>\w+)"
     },
     CONVALIDATION_SERVICE: {
         "title": CONVALIDATION_TITLE,
-        "patternfail": r"do not satify",
-        "pattern": r"You satisfy them."
+        "patternfail": r"You don't satisfy",
+        "pattern": r"You statisfy"
     },
     PAIR_SERVICE: {
         "title": PAIR_TITLE,
-        "pattern": r"Select the second"
+        "pattern": r"Select the other student"
     },
     BREAK_SERVICE: {
         "title": BREAK_TITLE,

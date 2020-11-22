@@ -79,7 +79,7 @@ class Student(User):
         ordering = ['last_name', 'first_name']
 
     def from_user(user: User):
-        return Student.objects.get(username=user.username)
+        return Student.objects.get(id=user.id)
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
@@ -125,7 +125,8 @@ class Pair(models.Model):
             # If it returned anything not equal to self,
             # he already requested another pair
             pair = Pair.get_pair(self.student1)
-            if pair is not None and self != pair:
+            if pair is not None and self != pair\
+               and pair.student1 == self.student1:
                 return Pair.YOU_HAVE_PAIR
 
             # See if student2 already has a pair

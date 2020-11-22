@@ -2,9 +2,11 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 
 from core.models import (Student, Pair, OtherConstraints,
                          LabGroup, GroupConstraints)
+import datetime
 
 HOME_MESSAGE = [None, False]
 
@@ -70,9 +72,15 @@ def convalidation(request):
     context_dict['theory_student_grade'] = stu.gradeTheoryLastYear
 
     # update the convalidation variable
-    stu.convalidationGranted = oc.minGradeLabConv < stu.gradeLabLastYear and\
-        stu.gradeTheoryLastYear > oc.minGradeTheoryConv and\
-        Pair.get_pair(stu) is None
+    p = Pair.get_pair(stu)
+    # do not convalidate if user has a validated pair
+    # or they are the first member of their pair
+    if p is not None and p.validated or p.student1.id == stu.id:
+        stu.convalidationGranted = False
+    else:
+        stu.convalidationGranted = stu.gradeLabLastYear > oc.minGradeLabConv\
+            and stu.gradeTheoryLastYear > oc.minGradeTheoryConv
+
     stu.save()
     context_dict['convalidated'] = stu.convalidationGranted
 
@@ -82,7 +90,9 @@ def convalidation(request):
 @login_required
 def applypair(request):
     context_dict = {}
-    context_dict['students'] = Student.objects.all()
+    # All the students except the currently logged in
+    context_dict['students'] = Student.objects\
+        .exclude(username=request.user.username)
     # If he sent an Apply Pair request...
     if request.method == "POST":
         # Validate the request (in case he wants to exploit a vulnerability)
@@ -116,7 +126,7 @@ def applypair(request):
                                                False]
                 return redirect(reverse('home'))
             # If the status is not OK, send the message through an
-            # error but don't redirect to other page 
+            # error but don't redirect to other page
             context_dict['msg'] = "You already have a pair"\
                 if status == Pair.YOU_HAVE_PAIR\
                 else "The requested user already has a pair"
@@ -140,13 +150,20 @@ def applygroup(request):
     if stu.labGroup is not None:
         context_dict['group'] = stu.labGroup
         return render(request, 'core/applygroup.html', context_dict)
-
+    try:
+        now = datetime.datetime.now()
+        now = timezone.make_aware(now, timezone.get_current_timezone())
+        if False and OtherConstraints.objects.first().selectGroupStartDate > now:
+            context_dict['not_active'] = True
+            return render(request, 'core/applygroup.html', context_dict)
+    except OtherConstraints.DoesNotExist:
+        pass
     # The student selects a lab group
     if request.method == 'POST':
         try:
             # Check if the requested group exist, and add the
             # user to this group.
-            lg = LabGroup.objects.get(groupName=request.POST['labGroup'])
+            lg = LabGroup.objects.get(id=request.POST['labGroup'])
             # Get the constraints for this group, if they exist
             try:
                 gcs = GroupConstraints.objects.filter(labGroup=lg)
@@ -165,6 +182,8 @@ def applygroup(request):
                 pass
             stu.labGroup = lg
             stu.save()
+            lg.counter += 1
+            lg.save()
             # Assign the group and give him a message
             context_dict['group'] = stu.labGroup
             context_dict['msg'] = request.POST['labGroup'] +\
@@ -176,7 +195,13 @@ def applygroup(request):
             # If it doesn't exist, return an error message
             context_dict['msg'] = request.POST['labGroup'] + " does not exist."
             context_dict['isError'] = True
-            # Don't return anything, just continue.
+            # Don't return anything, just continue as if it was a regular GET
+
     # Compute and render the groups if you reach the end of the function
-    context_dict['groups'] = LabGroup.objects.all()
+    # Compute and render the groups if you reach the end of the function
+    context_dict['groups'] = []
+    # Fetch all the valid groups and get them from LabGgroup
+    for cons in GroupConstraints.objects.filter(theoryGroup=stu.theoryGroup):
+        for g in LabGroup.objects.filter(groupName=cons.labGroup):
+            context_dict['groups'].append(g)
     return render(request, 'core/applygroup.html', context_dict)
