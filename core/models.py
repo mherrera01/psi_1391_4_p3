@@ -43,6 +43,23 @@ class LabGroup(models.Model):
     class Meta:
         ordering = ['groupName']
 
+    def add_student(self, student):
+        """Adds a student to the current group
+
+        Args:
+            student (Student): The Student to add
+
+        Returns:
+            bool: True if he was added, False if the group is full.
+        """
+        if self.counter + 1 > self.maxNumberStudents:
+            return False
+        student.labGroup = self
+        self.counter += 1
+        self.save()
+        student.save()
+        return True
+
     def __str__(self):
         return self.groupName
 
@@ -124,11 +141,13 @@ class Pair(models.Model):
 
             # If it returned anything not equal to self,
             # he already requested another pair
-            pair = Pair.get_pair(self.student1)
-            if pair is not None and self != pair\
-               and pair.student1 == self.student1:
-                return Pair.YOU_HAVE_PAIR
-
+            try:
+                own_pair = Pair.objects.get(student1=self.student1)
+                if own_pair.student2 != self.student2:
+                    # it's a different pair
+                    return Pair.YOU_HAVE_PAIR
+            except Pair.DoesNotExist:
+                pass
             # See if student2 already has a pair
             # where his student2 matches self.student1
 
@@ -138,7 +157,6 @@ class Pair(models.Model):
             # It exists, check if said student wants
             # to be with self.student1 too
             if other_pair is not None:
-
                 # If the following statement is false, create
                 # this new pair by just continuing
                 # after the except
@@ -148,7 +166,8 @@ class Pair(models.Model):
                     other_pair.validated = True
                     other_pair.save()
                     return Pair.OK
-                else:
+                # Check if this is our same pair
+                elif other_pair.student1 != self.student1:
                     return Pair.SECOND_HAS_PAIR
 
         """

@@ -50,8 +50,8 @@ CONVALIDATION_TITLE = 'Convalidation'
 
 PAIR_SERVICE = "applypair"
 PAIR_TITLE = 'Apply Pair'
-PAIR_SAME_USER = 'User has already selected a pair'
-PAIR_FORM_LABEL = 'secondMemberGroup'
+PAIR_SAME_USER = 'You already have a pair'
+PAIR_FORM_LABEL = 'student2'
 PAIR_SELECTION_ERROR = 'Could not process your request'
 BREAK_SERVICE = "breakpair"
 BREAK_TITLE = 'Break Pair'
