@@ -1,0 +1,40 @@
+{% extends 'core/base.html' %}
+{% load staticfiles %}
+
+{% block title %}
+    Apply Pair
+{% endblock %}
+
+{% block content %}
+    <div class="w3-content w3-white" style="padding:40px; max-width: 850px">
+        <div class="w3-container w3-card w3-light-gray" style="padding-bottom: 20px;">
+            <div class="w3-xxlarge">Pair selection page</div>
+        </div>
+        {% if pair %}
+        <p>You already have a pair:</p>
+        <p>{{pair}}</p>
+        <p>Status: {% if not pair.validated %}NOT {% endif %}validated</p>
+        {% else %}
+        <form class="w3-content" method="post" action="{% url 'applypair' %}">
+            {% csrf_token %}
+            <h1>Select the other student:</h1>
+            <select name="student2">
+                <option value="">----------</option>
+                {% for student in students %}
+                <option value="{{student.id}}">
+                    {# Check if the student has a Lab Group. If he doesn't, fall back to his Theory Group #}
+                    {% if student.labGroup %}
+                    ({{student.labGroup}})
+                    {% else %}  
+                    ({{student.theoryGroup}})
+                    {% endif %}
+                    {{student.last_name}}, {{student.first_name}}
+                </option>
+                {% endfor %}
+            </select>
+            <input class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow" style="width:200px;"
+                   type="submit" value="Apply pair" name="submitbutton">
+        </form>
+        {% endif %}
+    </div>
+{% endblock %}

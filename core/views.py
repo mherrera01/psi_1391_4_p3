@@ -6,14 +6,20 @@ from django.contrib.auth.decorators import login_required
 from core.models import (Student, Pair, OtherConstraints,
                          LabGroup, GroupConstraints)
 
+HOME_MESSAGE = [None, False]
+
 
 def home(request):
     context_dict = {}
     if request.user.is_authenticated:
-        stu = Student.objects.get(username=request.user.username)
+        stu = Student.from_user(request.user)
         context_dict['student'] = stu
         pair = Pair.get_pair(stu)
         context_dict['pair'] = pair
+    if 'home_msg' in request.session:
+        context_dict['msg'] = request.session['home_msg'][0]
+        context_dict['isError'] = request.session['home_msg'][1]
+        request.session['msg'] = None
     return render(request, 'core/home.html', context_dict)
 
 
@@ -28,6 +34,7 @@ def student_login(request):
         if user:
             # Check if the user is active
             if user.is_active:
+                # Log-in the user
                 login(request, user)
                 return redirect(reverse('home'))
             else:
@@ -54,7 +61,7 @@ def student_logout(request):
 def convalidation(request):
     context_dict = {}
     oc = OtherConstraints.objects.first()
-    stu = Student.objects.get(username=request.user.username)
+    stu = Student.from_user(request.user)
 
     # add the grade variables, used to print
     context_dict['lab_min_grade'] = oc.minGradeLabConv
@@ -74,15 +81,62 @@ def convalidation(request):
 
 @login_required
 def applypair(request):
-    return redirect(reverse('home'))
+    context_dict = {}
+    context_dict['students'] = Student.objects.all()
+    # If he sent an Apply Pair request...
+    if request.method == "POST":
+        # Validate the request (in case he wants to exploit a vulnerability)
+        if 'student2' not in request.POST:
+            context_dict['msg'] = "Missing \"student2\" in POST request." +\
+                "<br\\>Please, don't use a custom client " +\
+                "to send modified requests."
+            context_dict['isError'] = True
+            return render(request, 'core/applypair.html', context_dict)
+        if request.POST['student2'] == "":
+            context_dict['msg'] = "Please, select an student."
+            context_dict['isError'] = True
+            return render(request, 'core/applypair.html', context_dict)
+        # The student1 is the currently logged user
+        student1 = Student.from_user(request.user)
+        try:
+            # The student2 is given by the POST request
+            student2 = Student.objects.get(id=request.POST['student2'])
+            # Constructor will be later used
+            p = Pair(student1, student2)
+            # Try saving the pair, and check the returned variable
+            # since Python overrides allow changing the return
+            # type from None to any other type
+            status = p.save()
+            if status == Pair.OK:
+                # If the pair was created/validated, print
+                # an OK message in the home page
+                request.session['home_msg'] = ['Pair succesfully %s!' %
+                                               ("validated" if p.validated
+                                                else "created"),
+                                               False]
+                return redirect(reverse('home'))
+            # If the status is not OK, send the message through an
+            # error but don't redirect to other page 
+            context_dict['msg'] = "You already have a pair"\
+                if status == Pair.YOU_HAVE_PAIR\
+                else "The requested user already has a pair"
+            context_dict['isError'] = True
+            return render(request, 'core/applypair.html', context_dict)
+        except Student.DoesNotExist:
+            # If student2 doesn't exist, print it (invalid form)
+            context_dict['msg'] = "\"student2\" does not exist."
+            context_dict['isError'] = True
+            return render(request, 'core/applypair.html', context_dict)
+    return render(request, 'core/applypair.html', context_dict)
 
 
 @login_required
 def applygroup(request):
     context_dict = {}
-    stu = Student.objects.get(username=request.user.username)
+    stu = Student.from_user(request.user)
 
     # The student already has a lab group
+    # No need to compute the groups
     if stu.labGroup is not None:
         context_dict['group'] = stu.labGroup
         return render(request, 'core/applygroup.html', context_dict)
@@ -95,28 +149,34 @@ def applygroup(request):
             lg = LabGroup.objects.get(groupName=request.POST['labGroup'])
             # Get the constraints for this group, if they exist
             try:
-                gc = GroupConstraints.objects.get(labGroup=lg)
-                if stu.theoryGroup != gc.theoryGroup:
-                    context_dict['msg'] = "Members of the theory group" +\
+                gcs = GroupConstraints.objects.filter(labGroup=lg)
+                canJoin = False
+                for gc in gcs:
+                    canJoin |= stu.theoryGroup == gc.theoryGroup
+                if canJoin is False:
+                    context_dict['msg'] = "Members of the theory group " +\
                         f"{stu.theoryGroup} can't join {lg}"
-                    context_dict['groups'] = LabGroup.objects.all()
                     context_dict['isError'] = True
+                    # Render the groups, since there's been an error
+                    context_dict['groups'] = LabGroup.objects.all()
                     return render(request, 'core/applygroup.html',
                                   context_dict)
             except GroupConstraints.DoesNotExist:
                 pass
             stu.labGroup = lg
             stu.save()
+            # Assign the group and give him a message
             context_dict['group'] = stu.labGroup
             context_dict['msg'] = request.POST['labGroup'] +\
                 " has been assigned as your Lab group."
             context_dict['isError'] = False
+            # No need to render the groups
             return render(request, 'core/applygroup.html', context_dict)
         except LabGroup.DoesNotExist:
             # If it doesn't exist, return an error message
             context_dict['msg'] = request.POST['labGroup'] + " does not exist."
             context_dict['isError'] = True
             # Don't return anything, just continue.
-
+    # Compute and render the groups if you reach the end of the function
     context_dict['groups'] = LabGroup.objects.all()
     return render(request, 'core/applygroup.html', context_dict)

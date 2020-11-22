@@ -68,7 +68,7 @@ class Student(User):
                                     on_delete=models.SET_NULL)
 
     # Properties inherited by User
-    # first_name, last_name, email, password
+    # username, first_name, last_name, email, password
 
     # Properties of Student
     gradeTheoryLastYear = models.FloatField(default=0)
@@ -77,6 +77,9 @@ class Student(User):
 
     class Meta:
         ordering = ['last_name', 'first_name']
+
+    def from_user(user: User):
+        return Student.objects.get(username=user.username)
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'

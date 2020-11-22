@@ -18,9 +18,30 @@
                 <p>Your theory group is <b>{{student.theoryGroup}}</b></p>
             </li>
             <li>
+                <h2>Laboratory group</h2>
+                {% if student.labGroup %}
+                <p>Your laboratory group is <b>{{student.labGroup}}</b></p>
+                {% else %}
+                <p>You don't have a laboratory group. If you wish to assign yourself to a group, go to the Apply Group page</p>
+                <a class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow"
+                   href="{% url 'applygroup' %}" style="cursor: pointer; text-decoration: none;">Apply Group page</a>
+                {% endif %}
+            </li>
+            <li>
                 <h2>Convalidation</h2>
                 <p>Your lab assignments have {% if not student.convalidationGranted %}NOT {% endif %}been convalidated.</p>
                 {% if not student.convalidationGranted %}
+                <p>To apply for a convalidation, your last year marks have to be as follows:</p>
+                <div class="w3-container" style="display: flex; justify-content: space-between; padding-bottom:30px;">
+                    <div class="w3-card" style="padding:20px; max-width: 90vw">
+                        <h3>Theory</h3>
+                        <p>More than 3 out of 10</p>
+                    </div>
+                    <div class="w3-card" style="padding:20px; max-width: 90vw">
+                        <h3>Labs</h3>
+                        <p>More than 7 out of 10</p>
+                    </div>
+                </div>
                 <p>(If you wish to request a convalidation press the "convalidation" button.)</p>
                 <a class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow"
                     href="{% url 'convalidation' %}" style="cursor: pointer; text-decoration: none;">Convalidation request page</a>
@@ -31,7 +52,7 @@
                 {% if pair %}
                 <p>You're part of the following pair:</p> 
                 <p>{{pair}}</p>
-                    {% if pair.convalidated is False %}
+                    {% if pair.validated is False %}
                     <p><b>{{pair.student2}}</b> has NOT accepted this pair</p>
                     {% endif %}
                 {% else %}
