@@ -85,13 +85,11 @@ WSGI_APPLICATION = 'labassign.wsgi.application'
 
 DATABASES = {}
 if os.getenv('SQLITE', False):
-    print("Running labassign with SQLite3")
     DATABASES['default'] = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 else:
-    print("Running labassign with PostgreSQL")
     import dj_database_url
     postgre_url = 'postgres://alumnodb:alumnodb@localhost:5432/psi'
     DATABASES['default'] = dj_database_url.config(default=postgre_url)
