@@ -14,10 +14,11 @@ HOME_MESSAGE = [None, False]
 def home(request):
     """The landing page for most requests and the index page, which displays
     a brief summary for the user to see, displaying on his browser information
-    such as what Theory Group he's in, what Lab Group he's assigned to, his pair,
-    etc.
+    such as what Theory Group he's in, what Lab Group he's assigned to, his
+    pair, etc.
 
-    :param request: The user's HttpRequest object, which contains data about the user
+    :param request: The user's HttpRequest object, which contains data about
+    the user
     :type request: django.http.HttpRequest
     :return: The rendered HTML of the home page, according to his data
     :rtype: django.http.HttpResponse
@@ -36,22 +37,25 @@ def home(request):
 
 
 def student_login(request):
-    """ 
+    """
     The login page, rendered only if you're not logged in.
     =======================================================
     If you're not logged in:
     * A ``GET`` request (*i.e.: opening the page*) will render the login page
     * A ``POST`` will verify if your credentials are valid:
       * If they are, you will be logged in and sent to :meth:`core.views.home`
-      * If they are invalid, you will be sent back to the `login` page with an error message
-    
+      * If they are invalid, you will be sent back to the `login` page with an
+      error message
+
     If you're logged in:
     * Any HttpRequest will redirect you back to :meth:`core.views.home`
-     
 
-    :param request: The user's HttpRequest object, which contains data about the user
+
+    :param request: The user's HttpRequest object, which contains data about
+    the user
     :type request: django.http.HttpRequest
-    :return: The rendered Login page, or the rendered :meth:`core.views.home` page
+    :return: The rendered Login page, or the rendered :meth:`core.views.home`
+    page
     :rtype: django.http.HttpResponse
     """
     context_dict = {}
@@ -88,9 +92,11 @@ def student_logout(request):
     """Logs-out an user only if he's authenticated. If he's not, it will just
     show an error message to the user.
 
-    :param request: The user's HttpRequest object, which contains data about the user
+    :param request: The user's HttpRequest object, which contains data about
+    the user
     :type request: django.http.HttpRequest
-    :return: The rendered :meth:`core.views.home` page (since he'll be redirected to it)
+    :return: The rendered :meth:`core.views.home` page (since he'll be
+    redirected to it)
     :rtype: django.http.HttpResponse
     """
     if request.user.is_authenticated:
@@ -102,16 +108,17 @@ def student_logout(request):
 def convalidation(request):
     """
     The convalidation page, where you may skip the practices.
-    ===========================================================================================
+    =======================================================================
     It processes a convalidation request by just opening the page, and
     tells the user if he's eligible for convalidation or if he isn't.
-    
+
     It will also display the requirements to have your practices convalidated
 
     .. warning::
        Requires being logged in via :meth:`core.views.login`.
 
-    :param request: The user's HttpRequest object, which contains data about the user
+    :param request: The user's HttpRequest object, which contains data about
+    the user
     :type request: django.http.HttpRequest
     :return: The rendered convalidation page, with the necessary info
     :rtype: django.http.HttpResponse
@@ -154,14 +161,15 @@ def applypair(request):
     """
     The Apply Pair page.
     =======================
-    Rendered as a list where you may select a pair by sending the form as a `POST` request
-    or else info about your pair, if you already have one.
-    
-    .. note::
-       If you try sending a POST request manually using external tools (or your own browser)
-       it will get rejected if you already had one.
+    Rendered as a list where you may select a pair by sending the form as a
+    `POST` request or else info about your pair, if you already have one.
 
-    :param request: The user's HttpRequest object, which contains data about the user
+    .. note::
+       If you try sending a POST request manually using external tools (or
+       your own browser) it will get rejected if you already had one.
+
+    :param request: The user's HttpRequest object, which contains data about
+    the user
     :type request: django.http.HttpRequest
     :return: The rendered Apply Pair page, with the necessary info
     :rtype: django.http.HttpResponse
@@ -245,14 +253,16 @@ def applygroup(request):
     """
     The Apply Group page.
     =======================
-    Rendered as a list where you may select a group by sending the form as a `POST` request,
-    or else info about your group, if you already have one.
-    
+    Rendered as a list where you may select a group by sending the form as a
+    `POST` request, or else info about your group, if you already have one.
+
     .. note::
-       It will only display the valid groups to you, based on the :class:`core.models.GroupConstraints`
+       It will only display the valid groups to you, based on the
+       :class:`core.models.GroupConstraints`
        that reference your :class:`core.models.TheoryGroup`
 
-    :param request: The user's HttpRequest object, which contains data about the user
+    :param request: The user's HttpRequest object, which contains data about
+    the user
     :type request: django.http.HttpRequest
     :return: The rendered Apply Group page, with the necessary info
     :rtype: django.http.HttpResponse
@@ -314,8 +324,8 @@ def applygroup(request):
                 else:
                     # Check if he can join your group
                     friendCanJoin = GroupConstraints.objects.filter(
-                                theoryGroup=stu.theoryGroup,
-                                labGroup=lg).exists()
+                        theoryGroup=stu.theoryGroup,
+                        labGroup=lg).exists()
                     if not friendCanJoin:
                         context_dict['msg'] = "Members of the "\
                             + "theory group " +\

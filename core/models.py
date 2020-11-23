@@ -8,15 +8,18 @@ class OtherConstraints(models.Model):
     Global constraints, stored as a single object
     ==============================================
     .. note::
-       This is stored as a single object, which means you need to fetch it with:
-       `OtherConstraints.objects.first()`. An exception of type `OtherConstraints.DoesNotExist`
-       will be raised if there's no "Other Constraints"
+       This is stored as a single object, which means you need to fetch it
+       with: ``OtherConstraints.objects.first()``. An exception of type
+       `OtherConstraints.DoesNotExist` will be raised if
+       there's no "Other Constraints"
 
     :param selectGroupStartDate: The day when the Apply Group page will be open
     :type selectGroupStartDate: django.db.models.DateTimeField
-    :param minGradeTheoryConv: The minimum Theory grade from last year to be convalidated
+    :param minGradeTheoryConv: The minimum Theory grade from last year to be
+    convalidated
     :type minGradeTheoryConv: django.db.models.FloatField
-    :param minGradeLabConv: The minimum Lab grade from last year to be convalidated
+    :param minGradeLabConv: The minimum Lab grade from last year to be
+    convalidated
     :type minGradeLabConv: django.db.models.FloatField
     """
     selectGroupStartDate = models.DateTimeField()
@@ -26,9 +29,10 @@ class OtherConstraints(models.Model):
     def __str__(self):
         """The string representation for OtherConstraints
 
-        :return: `Theory: X.X | Lab: Y.Y` where X.X is the theory group's minimum grade and Y-Y is the lab's minimum grade 
+        :return: `Theory: X.X | Lab: Y.Y` where X.X is the theory group's
+        minimum grade and Y-Y is the lab's minimum grade
         :rtype: str
-        """        
+        """
         return 'Theory: %.1f | Lab: %.1f'\
                % (self.minGradeLabConv, self.minGradeTheoryConv)
 
@@ -154,7 +158,8 @@ class Student(User):
 
         :param user: The user to convert to student
         :type user: django.contrib.auth.models.User
-        :return: The `Student` object for the user, or an exception if it's not found
+        :return: The `Student` object for the user, or an exception if it's
+        not found
         :rtype: Student
         """
         return Student.objects.get(id=user.id)
@@ -170,7 +175,8 @@ class Pair(models.Model):
     :type student1: core.models.Student
     :param student1: The second student of the pair
     :type student1: core.models.Student
-    :param studentBreakRequest: If different than `None`, represents who wants to break the pair
+    :param studentBreakRequest: If different than `None`, represents who wants
+    to break the pair
     :type studentBreakRequest: core.models.Student
     :param validated: If the pair is validated or if it isn't
     :type validated: django.db.models.BooleanField
@@ -227,7 +233,7 @@ class Pair(models.Model):
                  * `Pair.YOU_HAVE_PAIR` if student1 has another requested pair.
                  * `Pair.SECOND_HAS_PAIR` if student2 has another pair
         :rtype: int
-        """        
+        """
         if self.validated is False:
             # Check if this user already requested another
             # pair. If he did, don't save this one.
