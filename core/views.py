@@ -55,7 +55,7 @@ def student_login(request):
     :rtype: django.http.HttpResponse
     """
     context_dict = {}
-    if user.is_authenticated:
+    if request.user.is_authenticated:
         request.session['home_msg'] = ["You're already logged in.", True]
         return redirect(reverse('home'))
     if request.method == 'POST':
