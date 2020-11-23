@@ -4,19 +4,48 @@ from django.db.models import Q
 
 
 class OtherConstraints(models.Model):
+    """
+    Global constraints, stored as a single object
+    ==============================================
+    .. note::
+       This is stored as a single object, which means you need to fetch it with:
+       `OtherConstraints.objects.first()`. An exception of type `OtherConstraints.DoesNotExist`
+       will be raised if there's no "Other Constraints"
+
+    :param selectGroupStartDate: The day when the Apply Group page will be open
+    :type selectGroupStartDate: django.db.models.DateTimeField
+    :param minGradeTheoryConv: The minimum Theory grade from last year to be convalidated
+    :type minGradeTheoryConv: django.db.models.FloatField
+    :param minGradeLabConv: The minimum Lab grade from last year to be convalidated
+    :type minGradeLabConv: django.db.models.FloatField
+    """
     selectGroupStartDate = models.DateTimeField()
     minGradeTheoryConv = models.FloatField()
     minGradeLabConv = models.FloatField()
 
     def __str__(self):
+        """The string representation for OtherConstraints
+
+        :return: `Theory: X.X | Lab: Y.Y` where X.X is the theory group's minimum grade and Y-Y is the lab's minimum grade 
+        :rtype: str
+        """        
         return 'Theory: %.1f | Lab: %.1f'\
                % (self.minGradeLabConv, self.minGradeTheoryConv)
 
 
 class Teacher(models.Model):
+    """The teacher's info.
+
+    :param id: Teacher's ID
+    :type id: django.db.models.IntegerField
+    :param first_name: Teacher's first name
+    :type first_name: django.db.models.CharField
+    :param last_name: Teacher's last name
+    :type last_name: django.db.models.CharField
+    """
     MAX_LENGTH = 128
 
-    # Properties of Student
+    # Properties of Teacher
     first_name = models.CharField(max_length=MAX_LENGTH)
     last_name = models.CharField(max_length=MAX_LENGTH)
 
@@ -78,6 +107,31 @@ class TheoryGroup(models.Model):
 
 
 class Student(User):
+    """The student's info.
+
+    :param id: Student's internal Django ID
+    :type id: django.db.models.IntegerField
+    :param labGroup: His assigned :class:`core.models.LabGroup`
+    :type labGroup: core.models.LabGroup
+    :param theoryGroup: His assigned :class:`core.models.theoryGroup`
+    :type theoryGroup: core.models.TheoryGroup
+    :param username: Student's username (his NIE)
+    :type username: django.db.models.CharField
+    :param first_name: Student's first name
+    :type first_name: django.db.models.CharField
+    :param last_name: Student's last name
+    :type last_name: django.db.models.CharField
+    :param email: Student's email
+    :type email: django.db.models.CharField
+    :param password: Student's password (his DNI)
+    :type password: django.db.models.CharField
+    :param gradeTheoryLastYear: His Theory grade from last year.
+    :type gradeTheoryLastYear: django.db.models.FloatField
+    :param gradeLabLastYear: His Lab grade from last year.
+    :type gradeLabLastYear: django.db.models.FloatField
+    :param convalidationGranted: If he has been given a convalidation this year
+    :type convalidationGranted: django.db.models.BooleanField
+    """
     # Foreign keys of Student
     labGroup = models.ForeignKey(LabGroup, null=True,
                                  on_delete=models.SET_NULL)
@@ -96,6 +150,13 @@ class Student(User):
         ordering = ['last_name', 'first_name']
 
     def from_user(user: User):
+        """Gets a student from any `django.contrib.auth.models.User` user.
+
+        :param user: The user to convert to student
+        :type user: django.contrib.auth.models.User
+        :return: The `Student` object for the user, or an exception if it's not found
+        :rtype: Student
+        """
         return Student.objects.get(id=user.id)
 
     def __str__(self):
@@ -103,7 +164,20 @@ class Student(User):
 
 
 class Pair(models.Model):
+    """The Pair model, containing info about a certain pair
+
+    :param student1: The first student of the pair
+    :type student1: core.models.Student
+    :param student1: The second student of the pair
+    :type student1: core.models.Student
+    :param studentBreakRequest: If different than `None`, represents who wants to break the pair
+    :type studentBreakRequest: core.models.Student
+    :param validated: If the pair is validated or if it isn't
+    :type validated: django.db.models.BooleanField
+    """
+
     # Save function return codes
+    # OK if it has been saved succesfully
     OK = 0
     # Student1 already has a pair
     YOU_HAVE_PAIR = 1
@@ -119,15 +193,23 @@ class Pair(models.Model):
                                  related_name="student2",
                                  on_delete=models.CASCADE)
 
-    sbr = "studentBreakRequest"  # aux for Flake8
+    _sbr = "studentBreakRequest"  # aux for Flake8
     studentBreakRequest = models.ForeignKey(Student, null=True,
-                                            related_name=sbr,
+                                            related_name=_sbr,
                                             on_delete=models.SET_NULL)
 
     # Properties of Pair
     validated = models.BooleanField(default=False)
 
     def get_pair(student: Student):
+        """Gets the pair for a student, be it if he's
+        the second or the first student
+
+        :param student: The class:`core.models.Student` to query
+        :type student: core.models.Student
+        :return: The pair, or `None` if he doesn't have a pair
+        :rtype: core.models.Pair
+        """
         try:
             return Pair.objects.get(Q(student1=student) |
                                     Q(student2=student))
@@ -135,6 +217,17 @@ class Pair(models.Model):
             return None
 
     def save(self, *args, **kwargs):
+        """
+        Does all the logic required by the "Apply Pair" service.
+        This is to mantain consistency and to modularize the practice, and
+        not depend on a HTTP service or not to depend on copy-pasting code,
+        enhancing code reusability
+
+        :return: * `Pair.OK` if everything went good.
+                 * `Pair.YOU_HAVE_PAIR` if student1 has another requested pair.
+                 * `Pair.SECOND_HAS_PAIR` if student2 has another pair
+        :rtype: int
+        """        
         if self.validated is False:
             # Check if this user already requested another
             # pair. If he did, don't save this one.
@@ -144,7 +237,7 @@ class Pair(models.Model):
             try:
                 own_pair = Pair.objects.get(student1=self.student1)
                 if own_pair.student2 != self.student2:
-                    # it's a different pair
+                    # you have a different pair
                     return Pair.YOU_HAVE_PAIR
             except Pair.DoesNotExist:
                 pass
@@ -168,13 +261,15 @@ class Pair(models.Model):
                     return Pair.OK
                 # Check if this is our same pair
                 elif other_pair.student1 != self.student1:
+                    # TODO:  maybe we need to check if this
+                    # pair is validated before returning?
                     return Pair.SECOND_HAS_PAIR
 
-        """
-            To be completed in practice 4
-        if self.studentBreakRequest:
-            self.validated = False
-        """
+        # """
+        #     To be completed in practice 4
+        # if self.studentBreakRequest:
+        #     self.validated = False
+        # """
         # Save this current pair
         super(Pair, self).save(*args, **kwargs)
         return Pair.OK
@@ -187,6 +282,14 @@ class Pair(models.Model):
 
 
 class GroupConstraints(models.Model):
+    """The group constraints, used to see who can join a
+    `LabGroup` in particular
+
+    :param theoryGroup: The required theory group
+    :type theoryGroup: core.models.TheoryGroup
+    :param labGroup: The constrained Lab group
+    :type labGroup: core.models.LabGroup
+    """
     # Foreign keys of GroupConstraints
     theoryGroup = models.ForeignKey(TheoryGroup, null=True,
                                     on_delete=models.SET_NULL)
