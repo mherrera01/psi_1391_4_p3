@@ -4,7 +4,6 @@ import os
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'labassign.settings')
 django.setup()
 
-from django.utils.timezone import make_aware, make_naive
 from datetime import timedelta
 from django.utils import timezone
 from core.models import OtherConstraints, Pair, Student

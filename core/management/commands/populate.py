@@ -74,24 +74,58 @@ class Command(BaseCommand):
         model = kwargs['model']
         cvsStudentFile = kwargs['studentinfo']
         cvsStudentFileGrades = kwargs['studentinfolastyear']
-
+        print("*"*12)
+        print("Populating the database...")
+        print("*"*12)
         # clean database
         if model == 'all':
+            print("="*10)
+            print("Cleaning the database...")
             self.cleanDataBase()
+            print("Database cleaned!")
+            print("="*10)
         if model == 'teacher' or model == 'all':
+            print("="*10)
+            print("Populating Teacher")
             self.teacher()
+            print("Teacher table populated!")
+            print("="*10)
         if model == 'labgroup' or model == 'all':
+            print("="*10)
+            print("Populating LabGroup")
             self.labgroup()
+            print("LabGroup table populated!")
+            print("="*10)
         if model == 'theorygroup' or model == 'all':
+            print("="*10)
+            print("Populating TheoryGroup")
             self.theorygroup()
+            print("TheoryGroup table populated!")
+            print("="*10)
         if model == 'groupconstraints' or model == 'all':
+            print("="*10)
+            print("Populating GroupConstraints")
             self.groupconstraints()
+            print("GroupConstraints table populated!")
+            print("="*10)
         if model == 'otherconstrains' or model == 'all':
+            print("="*10)
+            print("Populating OtherConstraints")
             self.otherconstrains()
+            print("OtherConstraints table populated!")
+            print("="*10)
         if model == 'student' or model == 'all':
+            print("="*10)
+            print("Populating Student from the csv file")
             self.student(cvsStudentFile)
+            print("Student table populated!")
+            print("="*10)
         if model == 'studentgrade' or model == 'all':
+            print("="*10)
+            print("Updating Student with their grades from the csv file")
             self.studentgrade(cvsStudentFileGrades)
+            print("Student table updated!")
+            print("="*10)
         if model == 'pair' or model == 'all':
             self.pair()
 

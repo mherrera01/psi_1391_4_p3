@@ -7,6 +7,8 @@ class OtherConstraints(models.Model):
     """
     Global constraints, stored as a single object
     ==============================================
+    Author: Miguel Herrera Martinez
+
     .. note::
        This is stored as a single object, which means you need to fetch it
        with: ``OtherConstraints.objects.first()``. An exception of type
@@ -28,6 +30,7 @@ class OtherConstraints(models.Model):
 
     def __str__(self):
         """The string representation for OtherConstraints
+        Author: Miguel Herrera Martinez
 
         :return: `Theory: X.X | Lab: Y.Y` where X.X is the theory group's
         minimum grade and Y-Y is the lab's minimum grade
@@ -39,6 +42,7 @@ class OtherConstraints(models.Model):
 
 class Teacher(models.Model):
     """The teacher's info.
+    Author: Jorge González Gómez
 
     :param id: Teacher's ID
     :type id: django.db.models.IntegerField
@@ -76,14 +80,31 @@ class LabGroup(models.Model):
     class Meta:
         ordering = ['groupName']
 
+    def remove_student(self, student):
+        """Removes a student from the current group
+        Author: Miguel Herrera Martinez
+
+        :param student: The Student to remove
+        :type student: Student
+        :return: True if he was removed, False if he wasn't.
+        :rtype: bool
+        """
+        if student.labGroup is not self:
+            return False
+        student.labGroup = None
+        self.counter -= 1
+        self.save()
+        student.save()
+        return True
+
     def add_student(self, student):
         """Adds a student to the current group
+        Author: Miguel Herrera Martinez
 
-        Args:
-            student (Student): The Student to add
-
-        Returns:
-            bool: True if he was added, False if the group is full.
+        :param student: The Student to add
+        :type student: Student
+        :return: True if he was added, False if the group is full.
+        :rtype: bool
         """
         if self.counter + 1 > self.maxNumberStudents:
             return False
@@ -98,6 +119,14 @@ class LabGroup(models.Model):
 
 
 class TheoryGroup(models.Model):
+    """ Defines the Theory Group model
+    Author: Miguel Herrera Martinez
+
+    :param groupName: The group's name
+    :type groupName: django.db.models.CharField
+    :param language: The group's language
+    :type language: django.db.models.CharField
+    """
     MAX_LENGTH = 128
 
     groupName = models.CharField(max_length=MAX_LENGTH)
@@ -112,6 +141,7 @@ class TheoryGroup(models.Model):
 
 class Student(User):
     """The student's info.
+    Author: Jorge González Gómez
 
     :param id: Student's internal Django ID
     :type id: django.db.models.IntegerField
@@ -155,6 +185,7 @@ class Student(User):
 
     def from_user(user: User):
         """Gets a student from any `django.contrib.auth.models.User` user.
+        Author: Jorge González Gómez
 
         :param user: The user to convert to student
         :type user: django.contrib.auth.models.User
@@ -170,6 +201,7 @@ class Student(User):
 
 class Pair(models.Model):
     """The Pair model, containing info about a certain pair
+    Author: Jorge González Gómez
 
     :param student1: The first student of the pair
     :type student1: core.models.Student
@@ -210,6 +242,7 @@ class Pair(models.Model):
     def get_pair(student: Student):
         """Gets the pair for a student, be it if he's
         the second or the first student
+        Author: Jorge González Gómez
 
         :param student: The class:`core.models.Student` to query
         :type student: core.models.Student
@@ -228,6 +261,7 @@ class Pair(models.Model):
         This is to mantain consistency and to modularize the practice, and
         not depend on a HTTP service or not to depend on copy-pasting code,
         enhancing code reusability
+        Author: Jorge González Gómez
 
         :return: * `Pair.OK` if everything went good.
                  * `Pair.YOU_HAVE_PAIR` if student1 has another requested pair.
@@ -267,8 +301,8 @@ class Pair(models.Model):
                     return Pair.OK
                 # Check if this is our same pair
                 elif other_pair.student1 != self.student1:
-                    # TODO:  maybe we need to check if this
-                    # pair is validated before returning?
+                    # the other guy has another request
+                    # (doesn't matter if it's not validated)
                     return Pair.SECOND_HAS_PAIR
 
         # """
@@ -290,6 +324,7 @@ class Pair(models.Model):
 class GroupConstraints(models.Model):
     """The group constraints, used to see who can join a
     `LabGroup` in particular
+    Author: Jorge González Gómez
 
     :param theoryGroup: The required theory group
     :type theoryGroup: core.models.TheoryGroup

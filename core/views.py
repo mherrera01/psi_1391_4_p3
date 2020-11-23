@@ -8,14 +8,14 @@ from core.models import (Student, Pair, OtherConstraints,
                          LabGroup, GroupConstraints)
 import datetime
 
-HOME_MESSAGE = [None, False]
-
 
 def home(request):
-    """The landing page for most requests and the index page, which displays
+    """
+    The landing page for most requests and the index page, which displays
     a brief summary for the user to see, displaying on his browser information
     such as what Theory Group he's in, what Lab Group he's assigned to, his
     pair, etc.
+    Author: Miguel Herrera Martinez
 
     :param request: The user's HttpRequest object, which contains data about
     the user
@@ -40,6 +40,7 @@ def student_login(request):
     """
     The login page, rendered only if you're not logged in.
     =======================================================
+    Author: Miguel Herrera Martinez
     If you're not logged in:
     * A ``GET`` request (*i.e.: opening the page*) will render the login page
     * A ``POST`` will verify if your credentials are valid:
@@ -69,9 +70,9 @@ def student_login(request):
         user = authenticate(username=username, password=password)
 
         if user:
-            # Check if the user is active
+            # Check if the user is active beforehand
             if user.is_active:
-                # Log-in the user
+                # Log-in the user if he's legit and active
                 login(request, user)
                 return redirect(reverse('home'))
             else:
@@ -79,8 +80,7 @@ def student_login(request):
                 context_dict['isError'] = True
                 return render(request, 'core/login.html', context_dict)
         else:
-            # Bad login details were provided. So we can't log the user in.
-            print("Invalid login details: {0}, {1}".format(username, password))
+            # Don't log-in if the user's credentials are invalid
             context_dict['msg'] = "Invalid login details. Please, Make sure"\
                 + " you are using the correct DNI and NIE."
             context_dict['isError'] = True
@@ -91,6 +91,7 @@ def student_login(request):
 def student_logout(request):
     """Logs-out an user only if he's authenticated. If he's not, it will just
     show an error message to the user.
+    Author: Miguel Herrera Martinez
 
     :param request: The user's HttpRequest object, which contains data about
     the user
@@ -109,6 +110,7 @@ def convalidation(request):
     """
     The convalidation page, where you may skip the practices.
     =======================================================================
+    Author: Miguel Herrera Martinez
     It processes a convalidation request by just opening the page, and
     tells the user if he's eligible for convalidation or if he isn't.
 
@@ -161,6 +163,7 @@ def applypair(request):
     """
     The Apply Pair page.
     =======================
+    Author: Jorge González Gómez
     Rendered as a list where you may select a pair by sending the form as a
     `POST` request or else info about your pair, if you already have one.
 
@@ -198,11 +201,6 @@ def applypair(request):
                 "to send modified requests."
             context_dict['isError'] = True
             return render(request, 'core/applypair.html', context_dict)
-        # Validate, part two.
-        if request.POST['student2'] == "":
-            context_dict['msg'] = "Please, select an student."
-            context_dict['isError'] = True
-            return render(request, 'core/applypair.html', context_dict)
 
         try:
             # The student2 is given by the POST request
@@ -233,7 +231,8 @@ def applypair(request):
 
         except Student.DoesNotExist:
             # If student2 doesn't exist, print it (invalid form)
-            context_dict['msg'] = "\"student2\" does not exist."
+            context_dict['msg'] = "Student with ID " +\
+                f"{request.POST['student2']} does not exist."
             context_dict['isError'] = True
 
     # GET, or else a "continue" from our POST method
@@ -253,6 +252,7 @@ def applygroup(request):
     """
     The Apply Group page.
     =======================
+    Author: Jorge González Gómez
     Rendered as a list where you may select a group by sending the form as a
     `POST` request, or else info about your group, if you already have one.
 
@@ -272,9 +272,6 @@ def applygroup(request):
 
     # The student already has a lab group
     # No need to compute the groups
-    if stu.labGroup is not None:
-        context_dict['group'] = stu.labGroup
-        return render(request, 'core/applygroup.html', context_dict)
     try:
         now = datetime.datetime.now()
         now = timezone.make_aware(now, timezone.get_current_timezone())
@@ -289,59 +286,51 @@ def applygroup(request):
             # Check if the requested group exist, and add the
             # user to this group.
             lg = LabGroup.objects.get(id=request.POST['labGroup'])
-            # Get the constraints for this group, if they exist
-            try:
-                canJoin = GroupConstraints.objects.filter(
-                    theoryGroup=stu.theoryGroup,
-                    labGroup=lg).exists()
-                if canJoin is False:
-                    context_dict['msg'] = "Members of the theory group " +\
-                        f"{stu.theoryGroup} can't join {lg}"
-                    context_dict['isError'] = True
-                    # Render the groups, since there's been an error
-                    context_dict['groups'] = []
-                    # Fetch all the valid groups and get them from LabGgroup
-                    for cons in GroupConstraints.objects\
-                            .filter(theoryGroup=stu.theoryGroup):
-                        for g in LabGroup.objects\
-                                .filter(groupName=cons.labGroup):
-                            context_dict['groups'].append(g)
-                    return render(request, 'core/applygroup.html',
-                                  context_dict)
-            except GroupConstraints.DoesNotExist:
-                pass
+
+            # Get the constraints for this group, if there's any
+            canJoin = GroupConstraints.objects.filter(
+                theoryGroup=stu.theoryGroup,
+                labGroup=lg).exists()
+            if canJoin is False:
+                context_dict['msg'] = "Members of the theory group " +\
+                    f"{stu.theoryGroup} can't join {lg}"
+                context_dict['isError'] = True
+                # Render the groups, since there's been an error
+                context_dict['groups'] = []
+                # Fetch all the valid groups and get them from LabGgroup
+                for cons in GroupConstraints.objects\
+                        .filter(theoryGroup=stu.theoryGroup):
+                    for g in LabGroup.objects\
+                            .filter(groupName=cons.labGroup):
+                        context_dict['groups'].append(g)
+                return render(request, 'core/applygroup.html',
+                              context_dict)
+
             # Check if his pair *can* be with him too
             pair = Pair.get_pair(stu)
             if pair:
                 fren = pair.student2 if stu == pair.student1\
                     else pair.student1
+                # check if the fren has a group
                 if fren.labGroup:
-                    if fren.labGroup != stu.labGroup:
-                        # Can't join.
-                        context_dict['msg'] = "Your selected partner is"\
-                            + " in a different lab group (invalid)"
-                        context_dict['isError'] = True
-                else:
-                    # Check if he can join your group
-                    friendCanJoin = GroupConstraints.objects.filter(
-                        theoryGroup=stu.theoryGroup,
-                        labGroup=lg).exists()
-                    if not friendCanJoin:
-                        context_dict['msg'] = "Members of the "\
-                            + "theory group " +\
-                            f"{stu.theoryGroup} can't join {lg}"
-                        context_dict['isError'] = True
+                    # But first, remove it from his group
+                    if fren.labGroup != lg:
+                        # Change groups
+                        fren.labGroup.remove_student(fren)
                     else:
-                        # If he can, force him into your
-                        # lab group.
-                        if lg.counter + 2 > lg.maxNumberStudents:
-                            # They can't join this group...
-                            # to avoid weird errors, just disallow both
-                            context_dict['msg'] = "This group is full!"\
-                                + "<br \\>You can't join with your partner"
-                            context_dict['isError'] = True
-                        else:
-                            lg.add_student(fren)
+                        # ...unless he's already in our desired group
+                        pass
+                # if he doesn't, check if there's space
+                # for our student and his fren
+                elif lg.counter + 2 > lg.maxNumberStudents:
+                    # They can't join this group...
+                    # to avoid weird errors, just disallow both
+                    context_dict['msg'] = "This group is full!"\
+                        + "<br \\>You can't join with your partner"
+                    context_dict['isError'] = True
+                # if there is space, add him without an error
+                else:
+                    lg.add_student(fren)
             # Check if we added an error message, just so
             # we know the pair joined/can't join the group
             if 'msg' in context_dict:
@@ -359,12 +348,11 @@ def applygroup(request):
                     " is FULL! You can't join this group."
                 context_dict['isError'] = False
             else:
-                context_dict['group'] = stu.labGroup
-                context_dict['msg'] = lg.groupName +\
-                    " has been assigned as your Lab group."
-                context_dict['isError'] = False
-                # No need to render the groups
-                return render(request, 'core/applygroup.html', context_dict)
+                request.session['home_msg'] = [str(lg.groupName) +
+                                               " has been assigned as " +
+                                               "your Lab group.",
+                                               False]
+                return redirect(reverse('home'))
         except LabGroup.DoesNotExist:
             # If it doesn't exist, return an error message
             context_dict['msg'] = request.POST['labGroup'] + " does not exist."
