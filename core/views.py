@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-
+from core.forms import LabGroupForm
 from core.models import (Student, Pair, OtherConstraints,
                          LabGroup, GroupConstraints)
 import datetime
@@ -361,9 +361,12 @@ def applygroup(request):
 
     # Compute and render the groups if you reach the end of the function
     # Compute and render the groups if you reach the end of the function
-    context_dict['groups'] = []
+
+    context_dict['groups'] = LabGroupForm(stu)
     # Fetch all the valid groups and get them from LabGgroup
+    """
     for cons in GroupConstraints.objects.filter(theoryGroup=stu.theoryGroup):
         for g in LabGroup.objects.filter(groupName=cons.labGroup):
             context_dict['groups'].append(g)
+    """
     return render(request, 'core/applygroup.html', context_dict)

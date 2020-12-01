@@ -18,12 +18,12 @@
         <form class="w3-content" method="post" action="{% url 'applygroup' %}">
             {% csrf_token %}
             <h1>Select the group you want to join to:</h1>
+            <!-- 
             <select name="labGroup">
                 <option value="">----------</option>
-                {% for group in groups %}
-                <option value="{{group.id}}">{{group}}</option>
-                {% endfor %}
-            </select>
+                
+            </select>-->
+            {{ groups.as_p }}
             <input class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow" style="width:200px;"
                    type="submit" value="Request group" name="submitbutton">
         </form>
