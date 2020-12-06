@@ -1,7 +1,7 @@
 from django import forms
 from core.models import Pair, LabGroup, Student, GroupConstraints
-from django.contrib.auth.models import User
 from django.db.models import Q
+from django.utils.safestring import mark_safe
 
 
 class LabGroupForm(forms.Form):
@@ -38,7 +38,17 @@ class LabGroupForm(forms.Form):
 
 
 class LoginForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput())
+    username = forms.CharField(widget=forms.TextInput(
+        attrs={'class': 'w3-input w3-border w3-margin-bottom',
+               'placeholder': 'Your NIE'}),
+        label=mark_safe('<b>Username (NIE)</b>'))
+    password = forms.CharField(widget=forms.PasswordInput(
+        attrs={'class': 'w3-input w3-border w3-margin-bottom',
+               'placeholder': 'Your DNI'}),
+        label=mark_safe('<b>Password (DNI)</b>'))
+
+    def set_NIE(self, NIE=None):
+        self.fields['username'] = NIE
 
     class Meta:
         model = Student
@@ -51,11 +61,39 @@ class PairForm(forms.Form):
 
     def __init__(self, student, *args, **kwargs):
         super(forms.Form, self).__init__(*args, **kwargs)
-        # TODO
-        students_to_skip = []
-        for p in Pair.objects.all():
-            if p.validated:
-                students_to_skip.append(p.student1)
-                students_to_skip.append(p.student2)
-        self.fields['availableStudents'].queryset = Student.objects\
-            .exclude(id__in=students_to_skip)
+
+        they_chosen_us = []
+        eligible_students = {}
+
+        groups_that_can_join = set()
+        # Check all groups that can join the same
+        # groups as we do
+        if student.labGroup is None:
+            for gc in GroupConstraints.objects.filter(
+                    theoryGroup=student.theoryGroup):
+                groups_that_can_join.add(gc.theoryGroup)
+        else:
+            for gc in GroupConstraints.objects.filter(
+                    labGroup=student.labGroup):
+                groups_that_can_join.add(gc.theoryGroup)
+
+        # Check all eligible students
+        for student_to_check in Student.objects\
+                .filter(theoryGroup__in=groups_that_can_join):
+            # Check his pairs
+            for p in Pair.get_pair(student_to_check):
+                if p.validated:
+                    continue
+                elif p.student1 != student:
+                    # If he has chosen us as their mate
+                    if p.student2 == student:
+                        they_chosen_us.append(p.student1)
+                    continue
+            # not in a pair, add them to eligible
+            eligible_students.add(student_to_check)
+
+        # Add the queryset in such a way the students that
+        # selected us are shown first on the list
+        queryset = Student.objects.filter(id__in=they_chosen_us)\
+            | Student.objects.filter(id__in=eligible_students)
+        self.fields['availableStudents'].queryset = queryset

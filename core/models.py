@@ -205,8 +205,8 @@ class Pair(models.Model):
 
     :param student1: The first student of the pair
     :type student1: core.models.Student
-    :param student1: The second student of the pair
-    :type student1: core.models.Student
+    :param student2: The second student of the pair
+    :type student2: core.models.Student
     :param studentBreakRequest: If different than `None`, represents who wants
     to break the pair
     :type studentBreakRequest: core.models.Student

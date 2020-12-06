@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from core.forms import LabGroupForm
+from core.forms import LabGroupForm, PairForm, LoginForm
 from core.models import (Student, Pair, OtherConstraints,
                          LabGroup, GroupConstraints)
 import datetime
@@ -63,9 +63,13 @@ def student_login(request):
     if request.user.is_authenticated:
         request.session['home_msg'] = ["You're already logged in.", True]
         return redirect(reverse('home'))
+
+    context_dict['loginForm'] = LoginForm()
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
+
+        context_dict['loginForm'].set_nie(username)
 
         user = authenticate(username=username, password=password)
 
@@ -78,13 +82,13 @@ def student_login(request):
             else:
                 context_dict['msg'] = "This user is disabled"
                 context_dict['isError'] = True
-                return render(request, 'core/login.html', context_dict)
+
         else:
             # Don't log-in if the user's credentials are invalid
             context_dict['msg'] = "Invalid login details. Please, Make sure"\
                 + " you are using the correct DNI and NIE."
             context_dict['isError'] = True
-            return render(request, 'core/login.html', context_dict)
+
     return render(request, 'core/login.html', context_dict)
 
 
@@ -178,18 +182,9 @@ def applypair(request):
     :rtype: django.http.HttpResponse
     """
     context_dict = {}
-    # All the students except the currently logged in, and
-    # those who are in an already validated pair
-    valid_students = []
-    for student in Student.objects.exclude(id=request.user.id):
-        s_pair = Pair.get_pair(student)
-        if s_pair:
-            if s_pair.validated:
-                continue
-        valid_students.append(student)
-    context_dict['students'] = valid_students
     # If he sent an Apply Pair request...
     s = Student.from_user(request.user)
+    context_dict['students'] = PairForm(s)
     # To be used in the future, defined to prevent a second useless querie.
     pair = None
     if request.method == "POST":
