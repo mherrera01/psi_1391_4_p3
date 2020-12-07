@@ -55,15 +55,28 @@ class LoginForm(forms.ModelForm):
         fields = ('username', 'password')
 
 
+# This is not a form, but it's only used in forms, so it makes
+# sense it should be here and not in another module.
+class CustomApplyPairModelChoiceField(forms.ModelChoiceField):
+    """Makes it easier to print a custom string for our student
+    in applypair"""
+
+    def __init__(self, *args, **kwargs):
+        super(CustomApplyPairModelChoiceField, self).__init__(*args, **kwargs)
+
+    def label_from_instance(self, obj):
+        return mark_safe(f"(XXX)>{str(obj.last_name)}, {str(obj.first_name)}")
+
+
 class PairForm(forms.Form):
-    availableStudents = forms.ModelChoiceField(queryset=None,
-                                               label="Available students:")
+    student2 = CustomApplyPairModelChoiceField(queryset=None,
+                                               label="")
 
     def __init__(self, student, *args, **kwargs):
         super(forms.Form, self).__init__(*args, **kwargs)
 
         they_chosen_us = []
-        eligible_students = {}
+        eligible_students = set()
 
         groups_that_can_join = set()
         # Check all groups that can join the same
@@ -77,23 +90,33 @@ class PairForm(forms.Form):
                     labGroup=student.labGroup):
                 groups_that_can_join.add(gc.theoryGroup)
 
-        # Check all eligible students
+        # Check all eligible students from the groups
+        # that can join our guy's group
         for student_to_check in Student.objects\
-                .filter(theoryGroup__in=groups_that_can_join):
+                .filter(Q(theoryGroup__in=groups_that_can_join) | Q(theoryGroup=None)):
+            # Skip the current user
+            if student_to_check.id == student.id:
+                continue
             # Check his pairs
-            for p in Pair.get_pair(student_to_check):
+            p = Pair.get_pair(student_to_check)
+            if p is not None:
                 if p.validated:
+                    # Don't add them if they have
+                    # a validated pair
                     continue
                 elif p.student1 != student:
-                    # If he has chosen us as their mate
+                    # Not our pair...
+                    # ...check if he has chosen us as their mate
                     if p.student2 == student:
-                        they_chosen_us.append(p.student1)
+                        they_chosen_us.append(p.student1.id)
                     continue
-            # not in a pair, add them to eligible
-            eligible_students.add(student_to_check)
+            else:
+                # not in a pair, add them to eligible
+                eligible_students.add(student_to_check.id)
 
         # Add the queryset in such a way the students that
         # selected us are shown first on the list
+        # queryset = Student.objects.exclude(id=student.id)
         queryset = Student.objects.filter(id__in=they_chosen_us)\
             | Student.objects.filter(id__in=eligible_students)
-        self.fields['availableStudents'].queryset = queryset
+        self.fields['student2'].queryset = queryset

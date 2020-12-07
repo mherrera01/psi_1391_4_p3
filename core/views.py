@@ -69,7 +69,7 @@ def student_login(request):
         username = request.POST['username']
         password = request.POST['password']
 
-        context_dict['loginForm'].set_nie(username)
+        context_dict['loginForm'].set_NIE(username)
 
         user = authenticate(username=username, password=password)
 
@@ -190,7 +190,6 @@ def applypair(request):
     if request.method == "POST":
         # Validate the request (in case he wants to exploit a vulnerability)
         if 'student2' not in request.POST:
-            print("missing student2 in POST request")
             context_dict['msg'] = "Missing \"student2\" in POST request." +\
                 "<br\\>Please, don't use a custom client " +\
                 "to send modified requests."
