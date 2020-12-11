@@ -251,7 +251,8 @@ class Pair(models.Model):
         """
         try:
             return Pair.objects.get(Q(student1=student) |
-                                    Q(student2=student))
+                                    (Q(student2=student)
+                                     & Q(validated=True)))
         except Pair.DoesNotExist:
             return None
 
@@ -299,20 +300,26 @@ class Pair(models.Model):
                     other_pair.validated = True
                     other_pair.save()
                     return Pair.OK
-                # Check if this is our same pair
-                elif other_pair.student1 != self.student1:
+                else:
                     # the other guy has another request
                     # (doesn't matter if it's not validated)
                     return Pair.SECOND_HAS_PAIR
-
-        # """
-        #     To be completed in practice 4
-        # if self.studentBreakRequest:
-        #     self.validated = False
-        # """
         # Save this current pair
         super(Pair, self).save(*args, **kwargs)
         return Pair.OK
+
+    def break_pair(self, student):
+        """Method to break a pair.
+        Author: Miguel Herrera Martínez
+
+        Args:
+            student (Student): The student who breaks the pair
+        """
+        if self.validated:
+            self.studentBreakRequest = student
+            super(Pair, self).save()
+        else:
+            self.delete(keep_parents=True)
 
     class Meta:
         ordering = ['student1__id', 'student2__id']

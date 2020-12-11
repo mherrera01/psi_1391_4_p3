@@ -29,6 +29,7 @@ urlpatterns = [
     path('convalidation/', views.convalidation,
          name='convalidation'),
     path('applypair/', views.applypair, name='applypair'),
+    path('breakpair/', views.breakpair, name='breakpair'),
     path('applygroup/', views.applygroup, name='applygroup'),
     path('admin/', admin.site.urls, name='admin'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

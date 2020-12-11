@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from core.forms import LabGroupForm, PairForm, LoginForm
+from core.forms import LabGroupForm, PairForm, LoginForm, BreakPairForm
 from core.models import (Student, Pair, OtherConstraints,
                          LabGroup, GroupConstraints)
 import datetime
@@ -28,11 +28,14 @@ def home(request):
         stu = Student.from_user(request.user)
         context_dict['student'] = stu
         pair = Pair.get_pair(stu)
-        context_dict['pair'] = pair
+        if pair:
+            context_dict['pair'] = pair
+        else:
+            context_dict['pairs'] = Pair.objects.filter(student2=stu)
     if 'home_msg' in request.session:
         context_dict['msg'] = request.session['home_msg'][0]
         context_dict['isError'] = request.session['home_msg'][1]
-        request.session['msg'] = None
+        request.session.pop('home_msg')
     return render(request, 'core/home.html', context_dict)
 
 
@@ -147,10 +150,8 @@ def convalidation(request):
         # or they are the first member of their pair
         p = Pair.get_pair(stu)
         if p is not None:
-            if p.validated:
-                stu.convalidationGranted = False
-            elif p.student1.id == stu.id:
-                stu.convalidationGranted = False
+            stu.convalidationGranted = False
+
     stu.save()
     context_dict['convalidated'] = stu.convalidationGranted
 
@@ -370,4 +371,29 @@ def breakpair(request):
     :return: The rendered Apply Pair page, with the necessary info
     :rtype: django.http.HttpResponse
     """
-    pass
+    context_dict = {}
+    stu = Student.from_user(request.user)
+
+    context_dict['pairs'] = BreakPairForm(stu)
+    # The student selected the pair to be broken
+    if request.method == 'POST':
+        # The pair is sent through here
+        myPair = request.POST['myPair']
+        pair = None
+        try:
+            pair = Pair.objects.get(id=myPair)
+        except Pair.DoesNotExist:
+            context_dict['msg'] = "You can't break a pair " +\
+                "that doesn't exist"
+            context_dict['isError'] = True
+            return render(request, 'core/breakpair.html', context_dict)
+
+        if pair.student1 != stu and pair.student2 != stu:
+            context_dict['msg'] = "You can't break a pair of which " +\
+                "you're not a member"
+            context_dict['isError'] = True
+            return render(request, 'core/breakpair.html', context_dict)
+
+        pair.break_pair(stu)
+
+    return render(request, 'core/breakpair.html', context_dict)
