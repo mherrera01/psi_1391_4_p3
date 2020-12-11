@@ -74,14 +74,9 @@ def student_login(request):
         user = authenticate(username=username, password=password)
 
         if user:
-            # Check if the user is active beforehand
-            if user.is_active:
-                # Log-in the user if he's legit and active
-                login(request, user)
-                return redirect(reverse('home'))
-            else:
-                context_dict['msg'] = "This user is disabled"
-                context_dict['isError'] = True
+            # Log-in the user (we won't disable/ban users)
+            login(request, user)
+            return redirect(reverse('home'))
 
         else:
             # Don't log-in if the user's credentials are invalid
@@ -290,13 +285,7 @@ def applygroup(request):
                     f"{stu.theoryGroup} can't join {lg}"
                 context_dict['isError'] = True
                 # Render the groups, since there's been an error
-                context_dict['groups'] = []
-                # Fetch all the valid groups and get them from LabGgroup
-                for cons in GroupConstraints.objects\
-                        .filter(theoryGroup=stu.theoryGroup):
-                    for g in LabGroup.objects\
-                            .filter(groupName=cons.labGroup):
-                        context_dict['groups'].append(g)
+                context_dict['groups'] = LabGroupForm(stu)
                 return render(request, 'core/applygroup.html',
                               context_dict)
 
@@ -328,11 +317,7 @@ def applygroup(request):
             # Check if we added an error message, just so
             # we know the pair joined/can't join the group
             if 'msg' in context_dict:
-                for cons in GroupConstraints.objects\
-                        .filter(theoryGroup=stu.theoryGroup):
-                    for g in LabGroup.objects\
-                            .filter(groupName=cons.labGroup):
-                        context_dict['groups'].append(g)
+                context_dict['groups'] = LabGroupForm(stu)
                 return render(request, 'core/applygroup.html',
                               context_dict)
             # Assign the group and give him a nice message
@@ -364,3 +349,25 @@ def applygroup(request):
             context_dict['groups'].append(g)
     """
     return render(request, 'core/applygroup.html', context_dict)
+
+
+@login_required
+def breakpair(request):
+    """
+    The Break Pair page.
+    =======================
+    Author: Jorge González Gómez
+    Rendered as a list where you may select a pair by sending the form as a
+    `POST` request or else info about your pair, if you already have one.
+
+    .. note::
+       If you try sending a POST request manually using external tools (or
+       your own browser) it will get rejected if you already had one.
+
+    :param request: The user's HttpRequest object, which contains data about
+    the user
+    :type request: django.http.HttpRequest
+    :return: The rendered Apply Pair page, with the necessary info
+    :rtype: django.http.HttpResponse
+    """
+    pass

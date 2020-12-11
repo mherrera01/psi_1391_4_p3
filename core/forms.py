@@ -5,8 +5,8 @@ from django.utils.safestring import mark_safe
 
 
 class LabGroupForm(forms.Form):
-    availableGroups = forms.ModelChoiceField(queryset=None,
-                                             label="Available groups:")
+    labGroup = forms.ModelChoiceField(queryset=None,
+                                      label="Available groups:")
 
     def __init__(self, student, *args, **kwargs):
         super(forms.Form, self).__init__(*args, **kwargs)
@@ -33,7 +33,7 @@ class LabGroupForm(forms.Form):
                 if g.maxNumberStudents - g.counter > joining:
                     groups_with_space.append(g.id)
 
-        self.fields['availableGroups'].queryset = LabGroup.objects\
+        self.fields['labGroup'].queryset = LabGroup.objects\
             .filter(id__in=groups_with_space)
 
 
@@ -73,6 +73,11 @@ class PairForm(forms.Form):
                                                label="")
 
     def __init__(self, student, *args, **kwargs):
+        """PairForm to render the contents of the ApplyPair page
+
+        Args:
+            student (Student): The student to check for
+        """
         super(forms.Form, self).__init__(*args, **kwargs)
 
         they_chosen_us = []
@@ -93,7 +98,8 @@ class PairForm(forms.Form):
         # Check all eligible students from the groups
         # that can join our guy's group
         for student_to_check in Student.objects\
-                .filter(Q(theoryGroup__in=groups_that_can_join) | Q(theoryGroup=None)):
+                .filter(Q(theoryGroup__in=groups_that_can_join) |
+                        Q(theoryGroup=None)):
             # Skip the current user
             if student_to_check.id == student.id:
                 continue
