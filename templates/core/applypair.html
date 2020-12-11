@@ -6,8 +6,8 @@
 {% endblock %}
 
 {% block content %}
-    <div class="w3-content w3-white" style="padding:40px; max-width: 850px">
-        <div class="w3-container w3-card w3-light-gray" style="padding-bottom: 20px;">
+    <div class="w3-content w3-white psi-content">
+        <div class="w3-container w3-card w3-light-gray psi-padding-bottom-20">
             <div class="w3-xxlarge">Pair selection page</div>
         </div>
         {% if pair %}
@@ -18,9 +18,8 @@
         <form class="w3-content" method="post" action="{% url 'applypair' %}">
             {% csrf_token %}
             <h1>Select the other student:</h1>
-            {# TESSSSSST #}
             {{students}}
-            <input class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow" style="width:200px;"
+            <input class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow psi-width-200"
                    type="submit" value="Apply pair" name="submitbutton">
         </form>
         {% endif %}

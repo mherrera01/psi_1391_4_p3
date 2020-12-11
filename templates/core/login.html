@@ -6,7 +6,7 @@
 {% endblock %}
   
 {% block content %}
-    <div class="w3-card-4 w3-content w3-white" style="padding:40px; max-width: 600px">
+    <div class="w3-card-4 w3-content w3-white psi-login">
       <form class="w3-container" action="{% url 'login' %}" method="POST">
           {% csrf_token %}
           <div class="w3-section">

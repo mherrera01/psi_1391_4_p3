@@ -6,11 +6,11 @@
 {% endblock %}
 
 {% block content %}
-    <div class="w3-card-4 w3-content w3-white" style="padding:40px; max-width: 900px">
+    <div class="w3-card-4 w3-content w3-white psi-content">
         {% if user.is_authenticated %}
-        <div class="w3-container w3-card w3-light-gray" style="padding-bottom: 20px;">
+        <div class="w3-container w3-card w3-light-gray psi-padding-bottom-20">
             <div class="w3-xxlarge">Summary</div>
-            <div style="padding-top: 10px;">Name: <b>{{student.first_name}} {{student.last_name}}</b></div>
+            <div class="psi-padding-top-10">Name: <b>{{student.first_name}} {{student.last_name}}</b></div>
         </div>
         <ul class="w3-ul">
             <li>
@@ -23,8 +23,8 @@
                 <p>Your laboratory group is <b>{{student.labGroup}}</b></p>
                 {% else %}
                 <p>You don't have a laboratory group. If you wish to assign yourself to a group, go to the Apply Group page</p>
-                <a class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow"
-                   href="{% url 'applygroup' %}" style="cursor: pointer; text-decoration: none;">Apply Group page</a>
+                <a class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow psi-button"
+                   href="{% url 'applygroup' %}">Apply Group page</a>
                 {% endif %}
             </li>
             <li>
@@ -32,19 +32,19 @@
                 <p>Your lab assignments have {% if not student.convalidationGranted %}NOT {% endif %}been convalidated.</p>
                 {% if not student.convalidationGranted %}
                 <p>To apply for a convalidation, your last year marks have to be as follows:</p>
-                <div class="w3-container" style="display: flex; justify-content: space-between; padding-bottom:30px;">
-                    <div class="w3-card" style="padding:20px; max-width: 90vw">
+                <div class="w3-container psi-container">
+                    <div class="w3-card psi-card">
                         <h3>Theory</h3>
                         <p>More than 3 out of 10</p>
                     </div>
-                    <div class="w3-card" style="padding:20px; max-width: 90vw">
+                    <div class="w3-card psi-card">
                         <h3>Labs</h3>
                         <p>More than 7 out of 10</p>
                     </div>
                 </div>
                 <p>(If you wish to request a convalidation press the "convalidation" button.)</p>
-                <a class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow"
-                    href="{% url 'convalidation' %}" style="cursor: pointer; text-decoration: none;">Convalidation request page</a>
+                <a class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow psi-button"
+                    href="{% url 'convalidation' %}">Convalidation request page</a>
                 {% endif %}
             </li>
             <li>
@@ -57,8 +57,8 @@
                     {% endif %}
                 {% else %}
                 <p>You are NOT part of any pair</p>
-                <a class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow"
-                    href="{% url 'applypair' %}" style="cursor: pointer; text-decoration: none;">Pair application page</a>
+                <a class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow psi-button"
+                    href="{% url 'applypair' %}">Pair application page</a>
                 {% endif %}
             </li>
             <li>
@@ -67,16 +67,16 @@
                 <p>Your practice group is: {{student.labGroup}}</p>
                 {% else %}
                 <p>You are NOT part of any practice group</p>
-                <a class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow"
-                    href="{% url 'applygroup' %}" style="cursor: pointer; text-decoration: none;">Group application page</a>
+                <a class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow psi-button"
+                    href="{% url 'applygroup' %}">Group application page</a>
                 {% endif %}
             </li>
 
         </ul>
         {% else %}
-        <div class="w3-content w3-white" style="padding:40px; max-width: 850px">
+        <div class="w3-content w3-white psi-content">
         
-            <div class="w3-container w3-card w3-light-gray" style="padding-bottom: 20px;">
+            <div class="w3-container w3-card w3-light-gray psi-padding-bottom-20">
                 <div class="w3-xxlarge">Welcome to the EDAT group selection page!</div>
                 </div>
                 <ul class="w3-ul">
@@ -84,18 +84,18 @@
                         <h2>Login</h2>
                         <p>To view the contents of this web, you first need to login.</p>
                         <p>Use your NIE as username and your DNI number as password. These will be your credentials, do not use your email: that won't work.</p>
-                        <a class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow"
-                        href="{% url 'login' %}" style="cursor: pointer; text-decoration: none;">Login</a>
+                        <a class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow psi-button"
+                        href="{% url 'login' %}">Login</a>
                     </li>
                     <li>
                         <h2>Convalidation</h2>
                         <p>To be eligible for a convalidation and, thus, not having to do the practices again, your grades from last year must be:</p>
-                        <div class="w3-container" style="display: flex; justify-content: space-between; padding-bottom:30px;">
-                            <div class="w3-card" style="padding:20px; max-width: 90vw">
+                        <div class="w3-container psi-container">
+                            <div class="w3-card psi-card">
                                 <h3>Theory</h3>
                                 <p>More than 3 out of 10</p>
                             </div>
-                            <div class="w3-card" style="padding:20px; max-width: 90vw">
+                            <div class="w3-card psi-card">
                                 <h3>Labs</h3>
                                 <p>More than 7 out of 10</p>
                             </div>

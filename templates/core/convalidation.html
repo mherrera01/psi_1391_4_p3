@@ -6,13 +6,13 @@ Convalidation
 {% endblock %}
 
 {% block content %}
-<div class="w3-card-4 w3-content w3-white" style="padding:40px; max-width: 900px">
-    <div class="w3-container w3-card w3-light-gray" style="padding-bottom: 20px;">
+<div class="w3-card-4 w3-content w3-white psi-content">
+    <div class="w3-container w3-card w3-light-gray psi-padding-bottom-20">
         <div class="w3-xxlarge">Convalidation page</div>
     </div>
     <h3>Notice: You <b>MUST NOT</b> be in a pair to apply for a convalidation!</h3>
-    <div class="w3-container" style="display: flex; justify-content: space-between; padding-bottom:30px;">
-        <div class="w3-card w3-ul" style="padding:20px; max-width: 90vw">
+    <div class="w3-container psi-container">
+        <div class="w3-card w3-ul psi-card">
             <li>
                 <h3>Theory</h3>
                 <p><b>Required:</b> {{theory_min_grade}}/10</p>
@@ -22,7 +22,7 @@ Convalidation
                 <p>{{theory_student_grade}}/10</p>
             </li>
         </div>
-        <div class="w3-card w3-ul" style="padding:20px; max-width: 90vw">
+        <div class="w3-card w3-ul psi-card">
             <li>
                 <h3>Labs</h3>
                 <p><b>Required:</b> {{lab_min_grade}}/10</p>
