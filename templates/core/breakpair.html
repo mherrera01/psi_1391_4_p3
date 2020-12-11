@@ -16,7 +16,7 @@
         {% else %}
         <form class="w3-content" method="post" action="{% url 'breakpair' %}">
             {% csrf_token %}
-            <h1>Select the pair to break:</h1>
+            <h1>Select the pair to be broken:</h1>
             {{pairs}}
             <input class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow psi-width-200"
                     type="submit" value="Break pair" name="submitbutton">

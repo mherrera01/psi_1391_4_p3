@@ -291,10 +291,13 @@ class Pair(models.Model):
             # It exists, check if said student wants
             # to be with self.student1 too
             if other_pair is not None:
+                if other_pair.id == self.id:
+                    # Same pair, just skip the logic
+                    pass
                 # If the following statement is false, create
                 # this new pair by just continuing
                 # after the except
-                if other_pair.student2 == self.student1:
+                elif other_pair.student2 == self.student1:
                     # Validate the other pair (first created)
                     # and don't save this one
                     other_pair.validated = True
@@ -317,9 +320,10 @@ class Pair(models.Model):
         """
         if self.validated:
             self.studentBreakRequest = student
+            self.validated = False
             super(Pair, self).save()
         else:
-            self.delete(keep_parents=True)
+            self.delete()
 
     class Meta:
         ordering = ['student1__id', 'student2__id']

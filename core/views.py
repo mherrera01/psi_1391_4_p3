@@ -150,7 +150,8 @@ def convalidation(request):
         # or they are the first member of their pair
         p = Pair.get_pair(stu)
         if p is not None:
-            stu.convalidationGranted = False
+            if p.validated:
+                stu.convalidationGranted = False
 
     stu.save()
     context_dict['convalidated'] = stu.convalidationGranted
@@ -383,14 +384,14 @@ def breakpair(request):
         try:
             pair = Pair.objects.get(id=myPair)
         except Pair.DoesNotExist:
-            context_dict['msg'] = "You can't break a pair " +\
-                "that doesn't exist"
+            context_dict['msg'] = "You cannot break a pair " +\
+                "that does not exist"
             context_dict['isError'] = True
             return render(request, 'core/breakpair.html', context_dict)
 
         if pair.student1 != stu and pair.student2 != stu:
-            context_dict['msg'] = "You can't break a pair of which " +\
-                "you're not a member"
+            context_dict['msg'] = "You cannot break a pair of which " +\
+                "you are not a member"
             context_dict['isError'] = True
             return render(request, 'core/breakpair.html', context_dict)
 
