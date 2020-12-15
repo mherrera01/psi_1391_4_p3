@@ -48,7 +48,7 @@ class LoginForm(forms.ModelForm):
         label=mark_safe('<b>Password (DNI)</b>'))
 
     def set_NIE(self, NIE=None):
-        self.fields['username'] = NIE
+        self.fields['username'].widget.attrs['value'] = NIE
 
     class Meta:
         model = Student
