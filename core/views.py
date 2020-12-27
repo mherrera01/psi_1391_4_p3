@@ -142,7 +142,11 @@ def convalidation(request):
     # and the user didn't select a group
     stu.convalidationGranted = stu.gradeLabLastYear > oc.minGradeLabConv\
         and stu.gradeTheoryLastYear > oc.minGradeTheoryConv
-    if stu.labGroup is not None:
+    if not stu.convalidationGranted:
+        context_dict['why_not_conv'] = "Your last year grades don't meet " + \
+            "the requirements!"
+    elif stu.labGroup is not None:
+        context_dict['why_not_conv'] = "You're already in a group!"
         stu.convalidationGranted = False
 
     if stu.convalidationGranted:
@@ -150,7 +154,9 @@ def convalidation(request):
         # or they are the first member of their pair
         p = Pair.get_pair(stu)
         if p is not None:
-            if p.validated:
+            if p.validated or p.student1 == stu:
+                context_dict['why_not_conv'] = "You're in a validated " + \
+                    "pair, or you requested a pair!"
                 stu.convalidationGranted = False
 
     stu.save()

@@ -61,16 +61,6 @@
                     href="{% url 'applypair' %}">Pair application page</a>
                 {% endif %}
             </li>
-            <li>
-                <h2>Selected group</h2>
-                {% if student.labGroup %}
-                <p>Your practice group is: {{student.labGroup}}</p>
-                {% else %}
-                <p>You are NOT part of any practice group</p>
-                <a class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow psi-button"
-                    href="{% url 'applygroup' %}">Group application page</a>
-                {% endif %}
-            </li>
 
         </ul>
         {% else %}
