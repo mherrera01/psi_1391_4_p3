@@ -14,7 +14,7 @@
         <ul class="w3-ul">
             <li>
                 <h2>Welcome to the Admin Page</h2>
-                <p>From here you can manage a groups and students, although we recommend
+                <p>From here you can manage groups and students, although we recommend
                    the use of the dedicated Django.</p>
             </li>
             <li>
@@ -22,6 +22,16 @@
                 <p>In this page, you will be able to check a list of the laboratory groups.</p>
                 <p>Clicking a group's name will give you a list of the Students who are in this
                    laboratory group.</p>
+                <a class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow psi-button"
+                   href="{% url 'showgroups' %}">Show Groups page</a>
+            </li>
+            <li>
+                <h2>Group change</h2>
+                <p>In this page, you will be able to change students from one lab group to another.</p>
+                <p>If the student you want to change of group has a validated pair, his partner
+                   will also be changed of group.</p>
+                <a class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow psi-button"
+                   href="{% url 'groupchange' %}">Group Change page</a>
             </li>
         </ul>
         {% elif user.is_authenticated %}

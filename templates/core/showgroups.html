@@ -1,0 +1,28 @@
+{% extends 'core/base.html' %}
+{% load staticfiles %}
+
+{% block title %}
+    Show Groups
+{% endblock %}
+
+{% block content %}
+
+    <div class="w3-content w3-white psi-content">
+        <div class="w3-container w3-card w3-light-gray psi-padding-bottom-20">
+            <div class="w3-xxlarge">Show groups page</div>
+        </div>
+        {% csrf_token %}
+        <h1>Lab groups available:</h1>
+        <ul class="w3-ul">
+            {% for g, counter in groups.items %}
+            <li>
+                <p>Group
+                <a class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow psi-button"
+                   href="{% url 'showgroups' %}">{{ g }}</a>
+                </p>
+                <p>Students registered: {{ counter }}</p>
+            </li>
+            {% endfor %}
+    </div>
+
+{% endblock %}

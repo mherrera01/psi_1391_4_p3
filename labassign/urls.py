@@ -32,4 +32,6 @@ urlpatterns = [
     path('breakpair/', views.breakpair, name='breakpair'),
     path('applygroup/', views.applygroup, name='applygroup'),
     path('admin/', admin.site.urls, name='admin'),
+    path('showgroups/', views.showgroups, name='showgroups'),
+    path('groupchange/', views.groupchange, name='groupchange'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

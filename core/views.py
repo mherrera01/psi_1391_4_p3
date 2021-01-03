@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils import timezone
 from core.forms import LabGroupForm, PairForm, LoginForm, BreakPairForm
 from core.models import (Student, Pair, OtherConstraints,
@@ -24,7 +24,7 @@ def home(request):
     :rtype: django.http.HttpResponse
     """
     context_dict = {}
-    if request.user.is_authenticated:
+    if request.user.is_authenticated and not request.user.is_superuser:
         stu = Student.from_user(request.user)
         context_dict['student'] = stu
         pair = Pair.get_pair(stu)
@@ -404,3 +404,23 @@ def breakpair(request):
         pair.break_pair(stu)
 
     return render(request, 'core/breakpair.html', context_dict)
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def showgroups(request):
+    context_dict = {}
+
+    # Fetch all the laboratory group names and their number of students
+    # available to show
+    labgroups = {}
+    for g in LabGroup.objects.all():
+        labgroups[g.__str__()] = g.counter
+
+    context_dict['groups'] = labgroups
+
+    return render(request, 'core/showgroups.html', context_dict)
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def groupchange(request):
+    return redirect(reverse('home'))

@@ -24,17 +24,27 @@
             <!-- These links are only shown when you're logged in -->
             <a href="{% url 'logout' %}"
                 class="psi-hover w3-bar-item w3-button w3-padding-medium w3-hover-white">Log-Out</a>
-            <a href="{% url 'convalidation' %}"
-                class="psi-hover w3-bar-item w3-button w3-padding-medium w3-hover-white">Convalidation</a>
-            <a href="{% url 'applypair' %}"
-                class="psi-hover w3-bar-item w3-button w3-padding-medium w3-hover-white">Apply
-                Pair</a>
-            <a href="{% url 'applygroup' %}"
-                class="psi-hover w3-bar-item w3-button w3-padding-medium w3-hover-white">Apply
-                Group</a>
-            <a href="{% url 'breakpair' %}"
-                class="psi-hover w3-bar-item w3-button w3-padding-medium w3-hover-white">Break
-                Pair</a>
+
+                {% if user.is_superuser %}
+                <!-- These links are only show when you are the superuser -->
+                <a href="{% url 'showgroups' %}"
+                    class="psi-hover w3-bar-item w3-button w3-padding-medium w3-hover-white">Groups</a>
+                <a href="{% url 'groupchange' %}"
+                    class="psi-hover w3-bar-item w3-button w3-padding-medium w3-hover-white">Group Change</a>
+                {% else %}
+                <a href="{% url 'convalidation' %}"
+                    class="psi-hover w3-bar-item w3-button w3-padding-medium w3-hover-white">Convalidation</a>
+                <a href="{% url 'applypair' %}"
+                    class="psi-hover w3-bar-item w3-button w3-padding-medium w3-hover-white">Apply
+                    Pair</a>
+                <a href="{% url 'applygroup' %}"
+                    class="psi-hover w3-bar-item w3-button w3-padding-medium w3-hover-white">Apply
+                    Group</a>
+                <a href="{% url 'breakpair' %}"
+                    class="psi-hover w3-bar-item w3-button w3-padding-medium w3-hover-white">Break
+                    Pair</a>
+                {% endif %}
+
             {% else %}
             <!-- These links are only shown when you're NOT logged in -->
             <a href="{% url 'login' %}"
