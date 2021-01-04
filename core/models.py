@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.template.defaultfilters import slugify
 from django.db.models import Q
 
 
@@ -77,6 +78,8 @@ class LabGroup(models.Model):
     maxNumberStudents = models.IntegerField()
     counter = models.IntegerField(default=0)
 
+    slug = models.SlugField(unique=True)
+
     class Meta:
         ordering = ['groupName']
 
@@ -92,9 +95,8 @@ class LabGroup(models.Model):
         if student.labGroup is not self:
             return False
         student.labGroup = None
-        self.counter -= 1
-        self.save()
         student.save()
+        self.save()
         return True
 
     def add_student(self, student):
@@ -109,10 +111,14 @@ class LabGroup(models.Model):
         if self.counter + 1 > self.maxNumberStudents:
             return False
         student.labGroup = self
-        self.counter += 1
-        self.save()
         student.save()
+        self.save()
         return True
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.groupName)
+        self.counter = len(Student.objects.filter(labGroup=self))
+        super(LabGroup, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.groupName

@@ -299,7 +299,10 @@ def applygroup(request):
 
             # Check if his pair *can* be with him too
             pair = Pair.get_pair(stu)
+            joinWithPair = False
             if pair:
+                joinWithPair = pair.validated
+            if joinWithPair:
                 fren = pair.student2 if stu == pair.student1\
                     else pair.student1
                 # check if the fren has a group
@@ -328,6 +331,10 @@ def applygroup(request):
                 context_dict['groups'] = LabGroupForm(stu)
                 return render(request, 'core/applygroup.html',
                               context_dict)
+            # If he had a group, remove it from the
+            # old group
+            if stu.labGroup:
+                stu.labGroup.remove_student(stu)
             # Assign the group and give him a nice message
             added = lg.add_student(stu)
             if not added:
@@ -407,18 +414,35 @@ def breakpair(request):
 
 
 @user_passes_test(lambda u: u.is_superuser)
-def showgroups(request):
+def groups(request):
     context_dict = {}
 
-    # Fetch all the laboratory group names and their number of students
-    # available to show
-    labgroups = {}
-    for g in LabGroup.objects.all():
-        labgroups[g.__str__()] = g.counter
+    # Message required if a group does not exist
+    if 'groups_msg' in request.session:
+        context_dict['msg'] = request.session['groups_msg'][0]
+        context_dict['isError'] = request.session['groups_msg'][1]
+        request.session.pop('groups_msg')
 
-    context_dict['groups'] = labgroups
+    # Fetch all the laboratory groups available to show
+    context_dict['groups'] = LabGroup.objects.all()
 
-    return render(request, 'core/showgroups.html', context_dict)
+    return render(request, 'core/groups.html', context_dict)
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def group(request, group_name_slug):
+    # Get the group and the students from the group slug
+    try:
+        context_dict = {}
+        group = LabGroup.objects.get(slug=group_name_slug)
+        context_dict['g'] = group
+
+        students = Student.objects.filter(labGroup=group)
+        context_dict['students'] = students
+        return render(request, 'core/group.html', context_dict)
+    except LabGroup.DoesNotExist:
+        request.session['groups_msg'] = ["This group does not exist.", True]
+        return redirect(reverse('groups'))
 
 
 @user_passes_test(lambda u: u.is_superuser)

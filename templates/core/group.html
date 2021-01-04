@@ -1,0 +1,34 @@
+{% extends 'core/base.html' %}
+{% load staticfiles %}
+
+{% block title %}
+    Group {{ g.groupName }}
+{% endblock %}
+
+{% block content %}
+
+    <div class="w3-content w3-white psi-content">
+        <div class="w3-container w3-card w3-light-gray psi-padding-bottom-20">
+            <div class="w3-xxlarge">LabGroup page for {{g.groupName}}</div>
+        </div>
+        <h1>Information about this group:</h1>
+        <ul class="w3-ul">
+            <li>
+                <h3>Teacher: <b>{{ g.teacher }}</b> </h3>
+            </li>
+            <li>
+                <h3>Language: <b>{{ g.language }}</b> </h3>
+            </li>
+            <li>
+                <h3>Schedule: <b>{{ g.schedule }}</b> </h3>
+            </li>
+                <h2>Students ({{ g.counter }}/{{ g.maxNumberStudents }})</h3>
+                <ul class="w3-ul w3-hoverable">
+                {% for s in students %}
+                    <li>{{s}}</li>
+                {% endfor %}
+                </ul>
+        </ul>
+    </div>
+
+{% endblock %}
