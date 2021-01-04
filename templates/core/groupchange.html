@@ -1,0 +1,28 @@
+{% extends 'core/base.html' %}
+{% load staticfiles %}
+
+{% block title %}
+    Group Change
+{% endblock %}
+
+{% block content %}
+    <div class="w3-content w3-white psi-content">
+        <div class="w3-container w3-card w3-light-gray psi-padding-bottom-20">
+            <div class="w3-xxlarge">Group change page</div>
+        </div>
+        <ul class="w3-ul">
+        {% for student, labGroupForm in students %}
+            <li>
+                <b>{{ student.last_name }}</b>, {{student.first_name}} - Theory group: {{ student.theoryGroup }} - Current group: {{ student.labGroup }}
+                <form class="w3-content" method="post" action="{% url 'groupchange' %}">
+                    {% csrf_token %}
+                    <input name="student" type="hidden" value="{{student.id}}" />
+                    {{ labGroupForm }}
+                    <input class="psi-hover w3-card w3-button w3-light-blue w3-padding-large w3-hover-light-blue w3-hover-shadow psi-width-200"
+                        type="submit" value="Change group" name="submitbutton">
+                </form>
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

@@ -8,6 +8,13 @@ from core.models import (Student, Pair, OtherConstraints,
                          LabGroup, GroupConstraints)
 import datetime
 
+OK_GROUP_JOINED = 0
+ERROR_GROUP_CANT_JOIN = 1
+ERROR_GROUP_FULL_PARTNER = 2
+ERROR_GROUP_FULL = 3
+
+LAB_GROUP_FORM_CACHE = {}
+
 
 def home(request):
     """
@@ -244,6 +251,65 @@ def applypair(request):
     return render(request, 'core/applypair.html', context_dict)
 
 
+# Used in applygroup and groupchange
+def change_students_group(stu, lg, context_dict):
+    # Check if the requested group exist, and add the
+    # user to this group.
+
+    # Get the constraints for this group, if there's any
+    canJoin = GroupConstraints.objects.filter(
+        theoryGroup=stu.theoryGroup,
+        labGroup=lg).exists()
+    if canJoin is False:
+        context_dict['msg'] = ""
+        context_dict['isError'] = True
+        # Render the groups, since there's been an error
+        context_dict['groups'] = LabGroupForm(stu)
+        return ERROR_GROUP_CANT_JOIN
+
+    # Check if his pair *can* be with him too
+    pair = Pair.get_pair(stu)
+    joinWithPair = False
+    if pair:
+        joinWithPair = pair.validated
+    if joinWithPair:
+        fren = pair.student2 if stu == pair.student1\
+            else pair.student1
+        skipCounterCheck = False
+        # First, check if our student is in another group
+        if fren.labGroup:
+            if fren.labGroup == lg:
+                # mark this as true if he's inside
+                # our Lab Group already
+                skipCounterCheck = True
+
+        # Second, check if there's enough space
+        if not skipCounterCheck and lg.counter + 2 > lg.maxNumberStudents\
+                and fren.labGroup:
+            # They can't join this group...
+            # to avoid weird errors, just disallow both
+            return ERROR_GROUP_FULL_PARTNER
+        # Thirdly, if there is space and he's not on our group,
+        # add him without an error
+        if not skipCounterCheck and fren.labGroup:
+            # But first, remove it from his group if it's not
+            # out desired group
+            if fren.labGroup != lg:
+                # Change groups
+                fren.labGroup.remove_student(fren)
+        # Finally, add it to his new group.
+        lg.add_student(fren)
+
+    # If our student had a group, remove
+    # it from the old group
+    if stu.labGroup:
+        stu.labGroup.remove_student(stu)
+    # Assign the group and give him a nice message
+    added = lg.add_student(stu)
+    if not added:
+        return ERROR_GROUP_FULL
+
+
 @login_required
 def applygroup(request):
     """
@@ -280,73 +346,27 @@ def applygroup(request):
     # The student selects a lab group
     if request.method == 'POST':
         try:
-            # Check if the requested group exist, and add the
-            # user to this group.
             lg = LabGroup.objects.get(id=request.POST['labGroup'])
-
-            # Get the constraints for this group, if there's any
-            canJoin = GroupConstraints.objects.filter(
-                theoryGroup=stu.theoryGroup,
-                labGroup=lg).exists()
-            if canJoin is False:
-                context_dict['msg'] = "Members of the theory group " +\
-                    f"{stu.theoryGroup} can't join {lg}"
-                context_dict['isError'] = True
-                # Render the groups, since there's been an error
-                context_dict['groups'] = LabGroupForm(stu)
-                return render(request, 'core/applygroup.html',
-                              context_dict)
-
-            # Check if his pair *can* be with him too
-            pair = Pair.get_pair(stu)
-            joinWithPair = False
-            if pair:
-                joinWithPair = pair.validated
-            if joinWithPair:
-                fren = pair.student2 if stu == pair.student1\
-                    else pair.student1
-                # check if the fren has a group
-                if fren.labGroup:
-                    # But first, remove it from his group
-                    if fren.labGroup != lg:
-                        # Change groups
-                        fren.labGroup.remove_student(fren)
-                    else:
-                        # ...unless he's already in our desired group
-                        pass
-                # if he doesn't, check if there's space
-                # for our student and his fren
-                elif lg.counter + 2 > lg.maxNumberStudents:
-                    # They can't join this group...
-                    # to avoid weird errors, just disallow both
-                    context_dict['msg'] = "This group is full!"\
-                        + "<br \\>You can't join with your partner"
-                    context_dict['isError'] = True
-                # if there is space, add him without an error
-                else:
-                    lg.add_student(fren)
-            # Check if we added an error message, just so
-            # we know the pair joined/can't join the group
-            if 'msg' in context_dict:
-                context_dict['groups'] = LabGroupForm(stu)
-                return render(request, 'core/applygroup.html',
-                              context_dict)
-            # If he had a group, remove it from the
-            # old group
-            if stu.labGroup:
-                stu.labGroup.remove_student(stu)
-            # Assign the group and give him a nice message
-            added = lg.add_student(stu)
-            if not added:
-                context_dict['msg'] = lg.groupName +\
-                    " is FULL! You can't join this group."
-                context_dict['isError'] = False
-            else:
+            message_switch = {
+                ERROR_GROUP_CANT_JOIN: "Members of the theory group " +
+                                       f"{stu.theoryGroup} can't join {lg}",
+                ERROR_GROUP_FULL_PARTNER: "This group is full!" +
+                                          "You can't join with your partner",
+                ERROR_GROUP_FULL: lg.groupName + " is FULL! " +
+                                                 "You can't join this group."
+            }
+            # Check the error message right after calling the function
+            message = change_students_group(stu, lg, context_dict)
+            if message == OK_GROUP_JOINED:
                 request.session['home_msg'] = [str(lg.groupName) +
                                                " has been assigned as " +
                                                "your Lab group.",
                                                False]
-                return redirect(reverse('home'))
+                redirect(reverse('home'))
+            # If there's a message, it's an error.
+            if message in message_switch:
+                context_dict['msg'] = message_switch[message]
+                context_dict['isError'] = True
         except LabGroup.DoesNotExist:
             # If it doesn't exist, return an error message
             context_dict['msg'] = request.POST['labGroup'] + " does not exist."
@@ -354,15 +374,8 @@ def applygroup(request):
             # Don't return anything, just continue as if it was a regular GET
 
     # Compute and render the groups if you reach the end of the function
-    # Compute and render the groups if you reach the end of the function
-
     context_dict['groups'] = LabGroupForm(stu)
-    # Fetch all the valid groups and get them from LabGgroup
-    """
-    for cons in GroupConstraints.objects.filter(theoryGroup=stu.theoryGroup):
-        for g in LabGroup.objects.filter(groupName=cons.labGroup):
-            context_dict['groups'].append(g)
-    """
+
     return render(request, 'core/applygroup.html', context_dict)
 
 
@@ -447,4 +460,47 @@ def group(request, group_name_slug):
 
 @user_passes_test(lambda u: u.is_superuser)
 def groupchange(request):
-    return redirect(reverse('home'))
+    context_dict = {}
+    if request.method == 'POST':
+        try:
+            lg = LabGroup.objects.get(id=request.POST['labGroup'])
+            stu = Student.objects.get(id=request.POST['student'])
+            message_switch = {
+                ERROR_GROUP_FULL_PARTNER: "This group is full!" +
+                                          "The user can't join with " +
+                                          "his partner",
+                ERROR_GROUP_FULL: lg.groupName + " is FULL! " +
+                "The user can't join this group."
+            }
+            # Check the error message right after calling the function
+            message = change_students_group(stu, lg, context_dict)
+            if message == OK_GROUP_JOINED:
+                request.session['home_msg'] = [str(lg.groupName) +
+                                               " has been assigned as " +
+                                               "your Lab group.",
+                                               False]
+                redirect(reverse('home'))
+            # If there's a message, it's an error.
+            if message in message_switch:
+                context_dict['msg'] = message_switch[message]
+                context_dict['isError'] = True
+        except LabGroup.DoesNotExist:
+            # If it doesn't exist, return an error message
+            context_dict['msg'] = request.POST['labGroup'] + " does not exist."
+            context_dict['isError'] = True
+            # Don't return anything, just continue as if it was a regular GET
+        except Student.DoesNotExist:
+            context_dict['msg'] = request.POST['student'] + " does not exist."
+            context_dict['isError'] = True
+
+    student_from_dict = []
+    for student in Student.objects.exclude(is_superuser=True):
+        lgForm = None
+        if student in LAB_GROUP_FORM_CACHE:
+            lgForm = LAB_GROUP_FORM_CACHE[student]
+        else:
+            lgForm = LabGroupForm(student)
+        student_from_dict.append([student, lgForm])
+    context_dict['students'] = student_from_dict
+
+    return render(request, 'core/groupchange.html', context_dict)

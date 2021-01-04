@@ -96,6 +96,7 @@ class LabGroup(models.Model):
             return False
         student.labGroup = None
         student.save()
+        self.counter -= 1
         self.save()
         return True
 
@@ -112,12 +113,12 @@ class LabGroup(models.Model):
             return False
         student.labGroup = self
         student.save()
+        self.counter += 1
         self.save()
         return True
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.groupName)
-        self.counter = len(Student.objects.filter(labGroup=self))
         super(LabGroup, self).save(*args, **kwargs)
 
     def __str__(self):
