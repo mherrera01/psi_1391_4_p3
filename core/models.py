@@ -66,6 +66,11 @@ class Teacher(models.Model):
 
 
 class LabGroup(models.Model):
+    """The LabGroup, who has a teacher, its name (usually also its ID),
+    a language, a schedule and an internal counter that tracks how many
+    users there are in the group
+    Author: Miguel Herrera Martinez
+    """
     # Foreign keys of LabGroup
     MAX_LENGTH = 128
     teacher = models.ForeignKey(Teacher, null=True, on_delete=models.SET_NULL)

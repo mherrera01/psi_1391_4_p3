@@ -5,10 +5,19 @@ from django.utils.safestring import mark_safe
 
 
 class LabGroupForm(forms.Form):
+    """A form to display which lab groups a given student can
+    apply to
+    """
     labGroup = forms.ModelChoiceField(queryset=None,
                                       label="Available groups:")
 
     def __init__(self, student, *args, **kwargs):
+        """A form to display which lab groups a given student can
+    apply to
+
+        :param student: The student to check
+        :type student: core.models.Student
+        """
         super(forms.Form, self).__init__(*args, **kwargs)
 
         # How many users will join?
@@ -38,6 +47,8 @@ class LabGroupForm(forms.Form):
 
 
 class LoginForm(forms.ModelForm):
+    """The basic Login form.
+    """
     username = forms.CharField(widget=forms.TextInput(
         attrs={'class': 'w3-input w3-border w3-margin-bottom',
                'placeholder': 'Your NIE'}),
@@ -48,6 +59,11 @@ class LoginForm(forms.ModelForm):
         label=mark_safe('<b>Password (DNI)</b>'))
 
     def set_NIE(self, NIE=None):
+        """Sets the NIE field to the passed NIE
+
+        :param NIE: The NIE to be set, defaults to None
+        :type NIE: str, optional
+        """
         self.fields['username'].widget.attrs['value'] = NIE
 
     class Meta:
@@ -62,6 +78,9 @@ class CustomApplyPairModelChoiceField(forms.ModelChoiceField):
     in applypair"""
 
     def __init__(self, *args, **kwargs):
+        """Makes it easier to print a custom string for our student
+    in applypair
+        """
         super(CustomApplyPairModelChoiceField, self).__init__(*args, **kwargs)
 
     def label_from_instance(self, obj):

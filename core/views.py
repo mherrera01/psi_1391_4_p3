@@ -428,6 +428,15 @@ def breakpair(request):
 
 @user_passes_test(lambda u: u.is_superuser)
 def groups(request):
+    """The "groups" view, exclusive to superusers.
+    Author: Jorge Gonzalez Gomez
+
+    :param request: The user's HttpRequest object, which contains data about
+    the user
+    :type request: django.http.HttpRequest
+    :return: The rendered Apply Pair page, with the necessary info
+    :rtype: django.http.HttpResponse
+    """
     context_dict = {}
 
     # Message required if a group does not exist
@@ -444,6 +453,18 @@ def groups(request):
 
 @user_passes_test(lambda u: u.is_superuser)
 def group(request, group_name_slug):
+    """The single group view, which displays info for a specific group
+    Author: Jorge Gonzalez Gomez
+
+    :param request: The user's HttpRequest object, which contains data about
+    the user
+    :type request: django.http.HttpRequest
+    :param group_name_slug: The "slug" version of a group name, which is
+    displayed in the browser bar
+    :type group_name_slug: str
+    :return: The rendered Apply Pair page, with the necessary info
+    :rtype: django.http.HttpResponse
+    """
     # Get the group and the students from the group slug
     try:
         context_dict = {}
@@ -460,6 +481,16 @@ def group(request, group_name_slug):
 
 @user_passes_test(lambda u: u.is_superuser)
 def groupchange(request):
+    """The group change view, which displays a list of all the students
+    and lets the superuser change their groups
+    Author: Miguel Herrera Martinez
+
+    :param request: The user's HttpRequest object, which contains data about
+    the user
+    :type request: django.http.HttpRequest
+    :return: The rendered Apply Pair page, with the necessary info
+    :rtype: django.http.HttpResponse
+    """
     context_dict = {}
     if request.method == 'POST':
         try:
